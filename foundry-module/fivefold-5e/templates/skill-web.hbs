@@ -1,0 +1,139 @@
+<div class="ff5e-shell">
+  <!-- Top Studio Bar -->
+  <header class="ff5e-topbar">
+    <div class="ff5e-brand">
+      <div class="ff5e-crest" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <polygon points="12,2 21.5,8.9 17.9,20 6.1,20 2.5,8.9" stroke="currentColor" stroke-width="1.8" fill="none" />
+          <circle cx="12" cy="2.5" r="2.2" fill="#c93b2b" />
+          <circle cx="21" cy="9.2" r="2.2" fill="#c78212" />
+          <circle cx="17.6" cy="19.6" r="2.2" fill="#2b5cc7" />
+          <circle cx="6.4" cy="19.6" r="2.2" fill="#0d8299" />
+          <circle cx="3" cy="9.2" r="2.2" fill="#1b8a5a" />
+        </svg>
+      </div>
+      <span class="ff5e-brand-title">{{localize "FIVEFOLD.ShortTitle"}}</span>
+      <span class="ff5e-meta-pill" data-ref="tree-counts">115 · 153</span>
+    </div>
+
+    <!-- Mode Switcher -->
+    <nav class="ff5e-modes" role="tablist">
+      <button type="button" class="ff5e-mode-btn active" data-mode="inspect" role="tab" aria-selected="true">
+        {{localize "FIVEFOLD.Modes.Inspect"}}
+      </button>
+      <button type="button" class="ff5e-mode-btn" data-mode="build" role="tab" aria-selected="false">
+        {{localize "FIVEFOLD.Modes.Build"}}
+      </button>
+      {{#if isGM}}
+      <button type="button" class="ff5e-mode-btn" data-mode="edit" role="tab" aria-selected="false">
+        {{localize "FIVEFOLD.Modes.Edit"}}
+      </button>
+      {{/if}}
+    </nav>
+
+    <!-- Search & JSON I/O -->
+    <div class="ff5e-top-actions">
+      <div class="ff5e-search-wrap">
+        <input type="text" class="ff5e-search-input" data-ref="search-input" placeholder="{{localize 'FIVEFOLD.Actions.SearchPlaceholder'}}" autocomplete="off" />
+        <button type="button" class="ff5e-search-clear" data-ref="search-clear" aria-label="Clear">&times;</button>
+        <div class="ff5e-search-results" data-ref="search-results"></div>
+      </div>
+
+      {{#if isGM}}
+      <button type="button" class="ff5e-btn" data-ref="btn-import" title="{{localize 'FIVEFOLD.Actions.Import'}}">
+        <i class="fa-solid fa-file-import"></i>
+      </button>
+      <input type="file" accept=".json,application/json" data-ref="file-import" style="display:none" />
+      {{/if}}
+      <button type="button" class="ff5e-btn" data-ref="btn-export" title="{{localize 'FIVEFOLD.Actions.Export'}}">
+        <i class="fa-solid fa-file-export"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="ff5e-workspace">
+    <!-- Interactive SVG Canvas -->
+    <section class="ff5e-canvas-pane">
+      <!-- Floating Role & Filter HUD -->
+      <div class="ff5e-hud-top">
+        <div class="ff5e-hud-group" data-ref="role-pills"></div>
+
+        <div class="ff5e-hud-group">
+          <select class="ff5e-hud-select" data-ref="filter-category">
+            <option value="all">{{localize "FIVEFOLD.Categories.all"}}</option>
+            <option value="root">{{localize "FIVEFOLD.Categories.root"}}</option>
+            <option value="class_feature">{{localize "FIVEFOLD.Categories.class_feature"}}</option>
+            <option value="subclass_feature">{{localize "FIVEFOLD.Categories.subclass_feature"}}</option>
+            <option value="feat">{{localize "FIVEFOLD.Categories.feat"}}</option>
+            <option value="spellcasting">{{localize "FIVEFOLD.Categories.spellcasting"}}</option>
+            <option value="hit_die">{{localize "FIVEFOLD.Categories.hit_die"}}</option>
+            <option value="save">{{localize "FIVEFOLD.Categories.save"}}</option>
+            <option value="skill">{{localize "FIVEFOLD.Categories.skill"}}</option>
+            <option value="proficiency">{{localize "FIVEFOLD.Categories.proficiency"}}</option>
+          </select>
+          <select class="ff5e-hud-select" data-ref="filter-tier">
+            <option value="all">{{localize "FIVEFOLD.Tiers.all"}}</option>
+            <option value="0">{{localize "FIVEFOLD.Tiers.0"}}</option>
+            <option value="1">{{localize "FIVEFOLD.Tiers.1"}}</option>
+            <option value="2">{{localize "FIVEFOLD.Tiers.2"}}</option>
+            <option value="3">{{localize "FIVEFOLD.Tiers.3"}}</option>
+            <option value="4">{{localize "FIVEFOLD.Tiers.4"}}</option>
+          </select>
+        </div>
+      </div>
+
+      <svg class="ff5e-svg" data-ref="tree-svg" viewBox="-1650 -1600 3300 3200">
+        <defs>
+          <marker id="ff5e-arrow-default-{{appId}}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="var(--ff5e-edge-default)"></path>
+          </marker>
+          <marker id="ff5e-arrow-active-{{appId}}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="currentColor"></path>
+          </marker>
+        </defs>
+        <g data-ref="viewport-group">
+          <g data-ref="guides-layer"></g>
+          <g data-ref="edges-layer"></g>
+          <g data-ref="temp-link-layer"></g>
+          <g data-ref="nodes-layer"></g>
+        </g>
+      </svg>
+
+      <!-- Floating Bottom Controls -->
+      <div class="ff5e-hud-bottom">
+        <div class="ff5e-hud-group">
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-zoom-out">&minus;</button>
+          <span class="ff5e-zoom-label" data-ref="zoom-readout">100%</span>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-zoom-in">+</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-fit">{{localize "FIVEFOLD.Actions.Fit"}}</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm active" data-ref="btn-rings">{{localize "FIVEFOLD.Actions.Rings"}}</button>
+        </div>
+
+        {{#if isGM}}
+        <div class="ff5e-hud-group" data-ref="edit-canvas-tools" style="display:none;">
+          <button type="button" class="ff5e-btn ff5e-btn-sm ff5e-btn-primary" data-ref="btn-add-node">{{localize "FIVEFOLD.Actions.AddNode"}}</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-link-mode">{{localize "FIVEFOLD.Actions.LinkEdge"}}</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-auto-layout">{{localize "FIVEFOLD.Actions.AutoLayout"}}</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-undo" disabled>{{localize "FIVEFOLD.Actions.Undo"}}</button>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="btn-redo" disabled>{{localize "FIVEFOLD.Actions.Redo"}}</button>
+        </div>
+        {{/if}}
+
+        <div class="ff5e-status-banner" data-ref="hud-status">
+          <span data-ref="hud-status-text"></span>
+          <button type="button" class="ff5e-btn ff5e-btn-sm" data-ref="hud-status-cancel">{{localize "FIVEFOLD.Actions.Cancel"}}</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Inspector / Builder / Editor Drawer -->
+    <aside class="ff5e-drawer">
+      <div class="ff5e-subtabs" data-ref="build-subtabs" style="display:none;">
+        <button type="button" class="ff5e-subtab active" data-btab="sheet">{{localize "FIVEFOLD.SubTabs.Sheet"}}</button>
+        <button type="button" class="ff5e-subtab" data-btab="node">{{localize "FIVEFOLD.SubTabs.Node"}}</button>
+      </div>
+      <div class="ff5e-drawer-scroll" data-ref="inspector-content"></div>
+    </aside>
+  </div>
+</div>

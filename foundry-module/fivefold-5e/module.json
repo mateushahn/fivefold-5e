@@ -1,0 +1,51 @@
+{
+  "id": "fivefold-5e",
+  "title": "Fivefold 5e — Role-Rooted Skill Web",
+  "description": "Classless D&D 5e role-rooted skill web (DAG) distributing class features, subclass features, skills, saving throws, proficiencies, hit dice, spellcasting tiers, and feats across Combat, Devotion, Magic, Social, Exploring, and Hybrid branches — with interactive ApplicationV2 visualizer, GM graph editor, and live dnd5e Actor synchronization.",
+  "version": "1.3.1",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.370"
+  },
+  "authors": [
+    {
+      "name": "Fivefold 5e Studio"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "5.0.0",
+          "verified": "6.1.1"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "styles/fivefold-5e.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    }
+  ],
+  "url": "https://github.com/mateushahn/fivefold-5e",
+  "manifest": "https://raw.githubusercontent.com/mateushahn/fivefold-5e/main/foundry-module/fivefold-5e/module.json",
+  "download": "https://raw.githubusercontent.com/mateushahn/fivefold-5e/main/foundry-module/fivefold-5e-foundry-module.zip",
+  "flags": {
+    "canUpload": true
+  }
+}

@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fivefold 5e — Role-Rooted RPG Skill Web Studio</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--background);
+      color: var(--foreground);
+    }
+    #tree-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+      user-select: none;
+    }
+    #tree-svg.panning { cursor: grabbing; }
+    #tree-svg.linking { cursor: crosshair; }
+
+    .tier-ring {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 1.5;
+      stroke-dasharray: 6 7;
+      opacity: 0.7;
+    }
+    .tier-ring-label {
+      fill: var(--muted-foreground);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      opacity: 0.75;
+    }
+    .sector-label {
+      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-anchor: middle;
+      opacity: 0.36;
+      pointer-events: none;
+    }
+    .edge-path {
+      fill: none;
+      stroke: var(--muted-foreground);
+      stroke-opacity: 0.38;
+      stroke-width: 2;
+      transition: stroke 0.15s, stroke-width 0.15s, stroke-opacity 0.15s;
+    }
+    .edge-path.dimmed { stroke-opacity: 0.1; }
+    .edge-path.highlighted { stroke-opacity: 0.95; stroke-width: 3.3; }
+    .edge-path.unlocked { stroke-opacity: 0.95; stroke-width: 3.5; }
+    .edge-path.editable { cursor: pointer; }
+    .edge-path.editable:hover {
+      stroke: var(--error) !important;
+      stroke-opacity: 1 !important;
+      stroke-width: 4.5 !important;
+    }
+    .node-group { cursor: pointer; transition: opacity 0.18s ease; }
+    .node-group.dimmed { opacity: 0.18; }
+    .node-group:hover .node-shape { filter: brightness(1.08); }
+    .node-label {
+      font-size: 12px;
+      font-weight: 600;
+      fill: var(--foreground);
+      text-anchor: middle;
+      pointer-events: none;
+      paint-order: stroke;
+      stroke: var(--background);
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+    .node-label.root-label {
+      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .node-glyph {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+    .node-cost-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+    @keyframes pulseRing {
+      0%, 100% { stroke-opacity: 0.95; }
+      50% { stroke-opacity: 0.3; }
+    }
+    .available-halo {
+      fill: none;
+      stroke-width: 2.6;
+      stroke-dasharray: 5 4;
+      animation: pulseRing 2s ease-in-out infinite;
+    }
+    .toast-bar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: var(--foreground);
+      color: var(--background);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 60;
+    }
+    .toast-bar.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased">
+  <div class="flex flex-col h-screen w-screen overflow-hidden">
+    <!-- Top Studio Header -->
+    <header class="h-13 shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-[var(--card)] border-b border-[var(--border)] z-20">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-7 h-7 rounded-md bg-[var(--secondary)] border border-[var(--border)] grid place-items-center shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <polygon points="12,2 21.5,8.9 17.9,20 6.1,20 2.5,8.9" stroke="currentColor" stroke-width="1.8" fill="none" />
+            <circle cx="12" cy="2.5" r="2.2" fill="#c93b2b" />
+            <circle cx="21" cy="9.2" r="2.2" fill="#c78212" />
+            <circle cx="17.6" cy="19.6" r="2.2" fill="#2b5cc7" />
+            <circle cx="6.4" cy="19.6" r="2.2" fill="#0d8299" />
+            <circle cx="3" cy="9.2" r="2.2" fill="#1b8a5a" />
+          </svg>
+        </div>
+        <h1 class="text-sm font-bold tracking-wide whitespace-nowrap" style="font-family: Georgia, serif;">Fivefold 5e</h1>
+        <span id="tree-counts" class="hidden sm:inline-block font-mono text-xs text-[var(--muted-foreground)] px-2 py-0.5 rounded-full bg-[var(--secondary)] border border-[var(--border)]">115 nodes · 153 links</span>
+      </div>
+
+      <!-- Mode Switcher -->
+      <nav class="inline-flex bg-[var(--secondary)] border border-[var(--border)] rounded-lg p-0.5 gap-0.5" role="tablist">
+        <button class="mode-btn px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition bg-[var(--card)] text-[var(--foreground)] shadow-sm" data-mode="inspect" role="tab" aria-selected="true">Inspect</button>
+        <button class="mode-btn px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition text-[var(--muted-foreground)]" data-mode="build" role="tab" aria-selected="false">Build Character</button>
+        <button class="mode-btn px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition text-[var(--muted-foreground)]" data-mode="edit" role="tab" aria-selected="false">Edit Web</button>
+      </nav>
+
+      <!-- Search & I/O -->
+      <div class="flex items-center gap-1.5">
+        <div class="relative w-44 sm:w-52 search-wrap">
+          <input id="search-input" type="text" placeholder="Search 5e feature, skill..." autocomplete="off"
+            class="w-full h-8 px-2.5 pr-7 rounded-md border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none focus:border-[var(--primary)]" />
+          <button id="search-clear" class="hidden absolute right-1.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] text-sm px-1 cursor-pointer">&times;</button>
+          <div id="search-results" class="hidden absolute top-full mt-1 left-0 right-0 max-h-64 overflow-y-auto bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg z-40"></div>
+        </div>
+        <button id="btn-import" class="h-8 px-2.5 rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer">Import</button>
+        <input id="file-import" type="file" accept=".json,application/json" class="hidden" />
+        <button id="btn-export" class="h-8 px-2.5 rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer">Export</button>
+      </div>
+    </header>
+
+    <!-- Main Split Workspace -->
+    <main class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+      <!-- Canvas Area -->
+      <section class="flex-1 relative bg-[var(--background)] overflow-hidden min-h-0">
+        <!-- Top Floating Filter Bar -->
+        <div class="absolute top-2.5 left-2.5 right-2.5 flex flex-wrap items-center justify-between gap-2 pointer-events-none z-10">
+          <div id="role-pills" class="flex flex-wrap items-center gap-1 bg-[var(--card)] border border-[var(--border)] rounded-lg p-1 shadow-sm pointer-events-auto"></div>
+          <div class="flex items-center gap-1.5 bg-[var(--card)] border border-[var(--border)] rounded-lg p-1 shadow-sm pointer-events-auto">
+            <select id="filter-category" class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--foreground)] outline-none cursor-pointer">
+              <option value="all">All Categories</option>
+              <option value="root">Role Root</option>
+              <option value="class_feature">Class Feature</option>
+              <option value="subclass_feature">Subclass Feature</option>
+              <option value="feat">Feat</option>
+              <option value="spellcasting">Spellcasting</option>
+              <option value="hit_die">Hit Die</option>
+              <option value="save">Saving Throw</option>
+              <option value="skill">Skill</option>
+              <option value="proficiency">Proficiency</option>
+            </select>
+            <select id="filter-tier" class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] text-xs text-[var(--foreground)] outline-none cursor-pointer">
+              <option value="all">All Tiers</option>
+              <option value="0">Tier 0 (Root)</option>
+              <option value="1">Tier I (Lv 1+)</option>
+              <option value="2">Tier II (Lv 5+)</option>
+              <option value="3">Tier III (Lv 11+)</option>
+              <option value="4">Tier IV (Lv 17+)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interactive SVG Canvas -->
+        <svg id="tree-svg" viewBox="-1650 -1600 3300 3200">
+          <defs>
+            <marker id="arrow-default" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="var(--muted-foreground)" fill-opacity="0.5"></path>
+            </marker>
+            <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          <g id="viewport-group">
+            <g id="guides-layer"></g>
+            <g id="edges-layer"></g>
+            <g id="temp-link-layer"></g>
+            <g id="nodes-layer"></g>
+          </g>
+        </svg>
+
+        <!-- Bottom Floating Controls -->
+        <div class="absolute bottom-3 left-3 right-3 flex flex-wrap items-end justify-between gap-2 pointer-events-none z-10">
+          <div class="flex items-center gap-1 bg-[var(--card)] border border-[var(--border)] rounded-lg p-1 shadow-sm pointer-events-auto">
+            <button id="btn-zoom-out" class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-semibold cursor-pointer">&minus;</button>
+            <span id="zoom-readout" class="font-mono text-xs text-[var(--muted-foreground)] min-w-[44px] text-center">100%</span>
+            <button id="btn-zoom-in" class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-semibold cursor-pointer">+</button>
+            <button id="btn-fit" class="h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer">Fit</button>
+            <button id="btn-rings" class="h-7 px-2.5 rounded border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-medium cursor-pointer">Rings</button>
+          </div>
+
+          <div id="edit-canvas-tools" class="hidden items-center gap-1 bg-[var(--card)] border border-[var(--border)] rounded-lg p-1 shadow-sm pointer-events-auto">
+            <button id="btn-add-node" class="h-7 px-2.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">+ Node</button>
+            <button id="btn-link-mode" class="h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer">Link Edge</button>
+            <button id="btn-auto-layout" class="h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer">Auto-Layout</button>
+            <button id="btn-undo" disabled class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] disabled:opacity-40 text-xs font-medium cursor-pointer">Undo</button>
+            <button id="btn-redo" disabled class="h-7 px-2 rounded border border-[var(--border)] bg-[var(--background)] disabled:opacity-40 text-xs font-medium cursor-pointer">Redo</button>
+          </div>
+
+          <div id="hud-status" class="hidden items-center gap-2 bg-[var(--card)] border border-[var(--primary)] rounded-lg px-3 py-1.5 text-xs shadow-sm pointer-events-auto">
+            <span id="hud-status-text" class="font-medium"></span>
+            <button id="hud-status-cancel" class="px-2 py-0.5 rounded border border-[var(--border)] bg-[var(--secondary)] text-xs cursor-pointer">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Studio Inspector Drawer -->
+      <aside class="w-full lg:w-[385px] h-[42vh] lg:h-auto shrink-0 bg-[var(--card)] border-t lg:border-t-0 lg:border-l border-[var(--border)] flex flex-col min-h-0 z-15">
+        <div id="build-subtabs" class="hidden border-b border-[var(--border)] px-3 gap-2 shrink-0">
+          <button class="sub-tab py-2.5 px-2 text-xs font-semibold border-b-2 border-[var(--primary)] text-[var(--foreground)] cursor-pointer" data-btab="sheet">Character Sheet</button>
+          <button class="sub-tab py-2.5 px-2 text-xs font-semibold border-b-2 border-transparent text-[var(--muted-foreground)] cursor-pointer" data-btab="node">Selected Node</button>
+        </div>
+        <div id="inspector-content" class="flex-1 overflow-y-auto p-3.5 space-y-3"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toast" class="toast-bar" role="status" aria-live="polite"></div>
+
+  <script>
+    window.FIVEFOLD_DEFAULT_TREE = {"meta":{"name":"Fivefold 5e — Role-Rooted Skill Web","version":"1.0.0","startingPoints":6,"pointsPerLevel":3,"baseHitDie":6,"tierMinLevels":{"0":1,"1":1,"2":5,"3":11,"4":17},"tierNames":{"0":"Tier 0 — Role Roots","1":"Tier I — Local Heroes (Lv 1–4)","2":"Tier II — Heroes of the Realm (Lv 5–10)","3":"Tier III — Masters of the Realm (Lv 11–16)","4":"Tier IV — Masters of the World (Lv 17–20)"}},"roles":{"combat":{"id":"combat","name":"Combat","angle":-90,"color":"#c93b2b","softBg":"rgba(201, 59, 43, 0.14)","tagline":"Martial prowess, steel, endurance, and battlefield dominance."},"devotion":{"id":"devotion","name":"Devotion","angle":-18,"color":"#c78212","softBg":"rgba(199, 130, 18, 0.14)","tagline":"Sacred vows, divine channeling, healing, and protective auras."},"magic":{"id":"magic","name":"Magic","angle":54,"color":"#2b5cc7","softBg":"rgba(43, 92, 199, 0.14)","tagline":"Arcane weave, spellcraft, metamagic, and eldritch pacts."},"social":{"id":"social","name":"Social","angle":126,"color":"#0d8299","softBg":"rgba(13, 130, 153, 0.14)","tagline":"Persuasion, bardic inspiration, intrigue, and commanding presence."},"exploring":{"id":"exploring","name":"Exploring","angle":198,"color":"#1b8a5a","softBg":"rgba(27, 138, 90, 0.14)","tagline":"Scouting, stealth, wilderness mastery, and unmatched agility."},"hybrid":{"id":"hybrid","name":"Hybrid","angle":0,"color":"#8f6339","softBg":"rgba(143, 99, 57, 0.16)","tagline":"Cross-role disciplines forged by uniting two or more roots."}},"categories":{"root":{"id":"root","label":"Role Root","shape":"octagon"},"class_feature":{"id":"class_feature","label":"Class Feature","shape":"hex"},"subclass_feature":{"id":"subclass_feature","label":"Subclass Feature","shape":"crest"},"feat":{"id":"feat","label":"Feat","shape":"diamond"},"spellcasting":{"id":"spellcasting","label":"Spellcasting","shape":"halo"},"hit_die":{"id":"hit_die","label":"Hit Die","shape":"shield"},"save":{"id":"save","label":"Saving Throw","shape":"badge"},"skill":{"id":"skill","label":"Skill","shape":"circle"},"proficiency":{"id":"proficiency","label":"Proficiency","shape":"square"}},"nodes":[{"id":"combat_root","name":"Combat","role":"combat","secondaryRoles":[],"category":"root","tier":0,"cost":1,"prereqMode":"all","x":0,"y":-260,"source5e":"Core Role Root","summary":"Mastery of weapons, armor, endurance, and direct battlefield force.","mechanics":"Unlocks the Combat branch. Grants proficiency with Simple Weapons and +1 to Initiative rolls.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Simple Weapons"],"spellTier":0,"tags":["Martial Root"]}},{"id":"combat_skill_athletics","name":"Athletics","role":"combat","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-161,"y":-382,"source5e":"Core Skill (STR)","summary":"Proficiency in climbing, jumping, swimming, grappling, and shoving.","mechanics":"Gain proficiency in the Athletics skill. Advantage on checks to maintain a grapple once per short rest.","grants":{"hitDie":null,"saves":[],"skills":["Athletics"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_save_str","name":"Strength Save","role":"combat","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":-96,"y":-497,"source5e":"Saving Throw Proficiency","summary":"Resist forced movement, restraints, and raw physical force.","mechanics":"Gain proficiency in Strength saving throws.","grants":{"hitDie":null,"saves":["STR"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_prof_weapons_martial","name":"Martial Arms","role":"combat","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":3,"y":-408,"source5e":"Fighter / Barbarian / Paladin","summary":"Training with all martial melee and ranged weaponry.","mechanics":"Gain proficiency with all Martial Weapons.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Martial Weapons"],"spellTier":0,"tags":[]}},{"id":"combat_hd_d8","name":"Soldier’s Grit (d8)","role":"combat","secondaryRoles":[],"category":"hit_die","tier":1,"cost":1,"prereqMode":"all","x":104,"y":-494,"source5e":"Hit Die Upgrade","summary":"Upgrade your base Hit Die from d6 to d8.","mechanics":"Your Hit Die becomes at least d8 (retroactively increasing max HP by +1 per character level).","grants":{"hitDie":8,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_prof_armor_med","name":"Battlefield Armor","role":"combat","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":182,"y":-385,"source5e":"Fighter / Paladin / Barbarian","summary":"Wear Light Armor, Medium Armor, and wield Shields.","mechanics":"Gain proficiency with Light Armor, Medium Armor, and Shields.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Light Armor","Medium Armor","Shields"],"spellTier":0,"tags":[]}},{"id":"combat_rage","name":"Rage","role":"combat","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":-209,"y":-574,"source5e":"Barbarian 1","summary":"Channel primal fury for bonus melee damage and damage resistance.","mechanics":"Bonus action: enter Rage (2/LR, scaling with Tier). Gain advantage on STR checks/saves, +2 melee STR damage (+3 at T2, +4 at T3), and resistance to bludgeoning, piercing, and slashing damage. Cannot cast/concentrate on spells.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Rage"]}},{"id":"combat_fighting_style","name":"Fighting Style","role":"combat","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":-42,"y":-618,"source5e":"Fighter 1 / Paladin 2 / Ranger 2","summary":"Adopt a signature martial discipline.","mechanics":"Choose one Fighting Style: Archery (+2 ranged attack), Defense (+1 AC in armor), Dueling (+2 one-handed damage), Great Weapon Fighting, Protection, or Two-Weapon Fighting.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Fighting Style"]}},{"id":"combat_second_wind","name":"Second Wind","role":"combat","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":90,"y":-631,"source5e":"Fighter 1","summary":"Draw on stamina to recover HP mid-fight.","mechanics":"Bonus action: regain 1d10 + character level HP. Recharges on a short or long rest.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Self-Sustain"]}},{"id":"combat_save_con","name":"Constitution Save","role":"combat","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":209,"y":-574,"source5e":"Saving Throw Proficiency","summary":"Shrug off poison, frost, exhaustion, and concentration breaks.","mechanics":"Gain proficiency in Constitution saving throws.","grants":{"hitDie":null,"saves":["CON"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_reckless_attack","name":"Reckless Attack","role":"combat","secondaryRoles":[],"category":"class_feature","tier":2,"cost":2,"prereqMode":"all","x":-334,"y":-754,"source5e":"Barbarian 2","summary":"Trade defense for devastating melee advantage plus Danger Sense.","mechanics":"Gain advantage on melee STR attacks this turn (attacks against you have advantage until next turn). Also gain advantage on DEX saves against effects you can see.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Fury"]}},{"id":"combat_improved_crit","name":"Improved Critical","role":"combat","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":-196,"y":-786,"source5e":"Champion Fighter 3","summary":"Score critical hits on natural 19 or 20.","mechanics":"Your weapon attacks score a critical hit on a roll of 19 or 20. Also add half proficiency bonus to non-proficient STR/DEX/CON checks.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Crit 19-20"]}},{"id":"combat_extra_attack","name":"Extra Attack","role":"combat","secondaryRoles":[],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":-58,"y":-828,"source5e":"Fighter / Barbarian / Paladin / Ranger / Monk 5","summary":"Attack twice whenever you take the Attack action.","mechanics":"You can attack twice, instead of once, whenever you take the Attack action on your turn.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["2 Attacks"]}},{"id":"combat_maneuvers","name":"Combat Superiority","role":"combat","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":80,"y":-811,"source5e":"Battle Master Fighter 3","summary":"Four d8 Superiority Dice and three tactical combat maneuvers.","mechanics":"Learn 3 Battle Master maneuvers (e.g., Trip Attack, Riposte, Precision Attack, Menacing Attack) and gain 4d8 Superiority Dice (short rest recharge).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Maneuvers"]}},{"id":"combat_action_surge","name":"Action Surge","role":"combat","secondaryRoles":[],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":212,"y":-812,"source5e":"Fighter 2","summary":"Push beyond normal limits for an extra action.","mechanics":"On your turn, take one additional action. Once per short or long rest (twice at Tier IV).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Action Economy"]}},{"id":"combat_hd_d10","name":"Martial Vigor (d10)","role":"combat","secondaryRoles":[],"category":"hit_die","tier":2,"cost":2,"prereqMode":"all","x":326,"y":-745,"source5e":"Hit Die Upgrade","summary":"Upgrade your Hit Die to d10.","mechanics":"Your Hit Die becomes at least d10 (retroactively increasing max HP by +1 per level over d8).","grants":{"hitDie":10,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_prof_armor_heavy","name":"Heavy Plate","role":"combat","secondaryRoles":[],"category":"proficiency","tier":2,"cost":2,"prereqMode":"all","x":341,"y":-572,"source5e":"Fighter / Paladin / Heavy Armor","summary":"Don Heavy Armor and absorb incoming blows.","mechanics":"Gain proficiency with Heavy Armor. While wearing heavy armor, nonmagical B/P/S damage is reduced by 2.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Heavy Armor"],"spellTier":0,"tags":[]}},{"id":"combat_feat_gwm","name":"Power Strike Mastery","role":"combat","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":-189,"y":-972,"source5e":"Feat: Great Weapon Master / Sharpshooter","summary":"Trade -5 accuracy for +10 weapon damage.","mechanics":"Choose Heavy Melee (GWM: bonus attack on crit/kill, -5/+10) or Ranged (Sharpshooter: ignore cover/long range, -5/+10).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Martial Feat"]}},{"id":"combat_feat_sentinel","name":"Sentinel","role":"combat","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":451,"y":-848,"source5e":"Feat: Sentinel","summary":"Lock down foes and punish attacks against allies.","mechanics":"Opportunity attacks reduce target speed to 0; provoke even on Disengage; reaction melee attack when a creature within 5 ft attacks an ally.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Tank Feat"]}},{"id":"combat_brutal_critical","name":"Brutal Critical","role":"combat","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":-385,"y":-1057,"source5e":"Barbarian 9 / 13","summary":"Roll extra weapon damage dice on critical hits.","mechanics":"Roll two additional weapon damage dice when determining extra damage for a critical hit with a melee attack. Gain Relentless Rage.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Crit Scaling"]}},{"id":"combat_indomitable","name":"Indomitable","role":"combat","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":234,"y":-1100,"source5e":"Fighter 9","summary":"Reroll a failed saving throw through sheer willpower.","mechanics":"Reroll a failed saving throw (2/LR). You must use the new roll.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Save Reroll"]}},{"id":"combat_hd_d12","name":"Juggernaut Vitality (d12)","role":"combat","secondaryRoles":[],"category":"hit_die","tier":3,"cost":3,"prereqMode":"all","x":438,"y":-1031,"source5e":"Barbarian Hit Die Upgrade","summary":"Upgrade your Hit Die to the maximum d12.","mechanics":"Your Hit Die becomes d12 (retroactively increasing max HP by +1 per level over d10).","grants":{"hitDie":12,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"combat_three_attacks","name":"Apex Blade (3 Attacks)","role":"combat","secondaryRoles":[],"category":"class_feature","tier":4,"cost":5,"prereqMode":"all","x":-47,"y":-1339,"source5e":"Fighter 11 / 20","summary":"Unleash three weapon strikes with every Attack action.","mechanics":"You can attack three times whenever you take the Attack action. Your Superiority Dice become d10s if you possess Combat Superiority.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["3 Attacks","Capstone"]}},{"id":"combat_capstone_titan","name":"Primal Champion","role":"combat","secondaryRoles":[],"category":"class_feature","tier":4,"cost":5,"prereqMode":"all","x":-372,"y":-1298,"source5e":"Barbarian 20","summary":"Transcend mortal limits with +4 STR and +4 CON.","mechanics":"Your Strength and Constitution scores increase by 4, and your maximum for those scores is now 24.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["+4 STR/CON","Capstone"]}},{"id":"devotion_root","name":"Devotion","role":"devotion","secondaryRoles":[],"category":"root","tier":0,"cost":1,"prereqMode":"all","x":247,"y":-80,"source5e":"Core Role Root","summary":"Sacred vows, divine channeling, restoration, and radiant protection.","mechanics":"Unlocks the Devotion branch. Grants proficiency with a Holy Symbol focus and the Guidance or Spare the Dying cantrip.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Holy Symbol"],"spellTier":0,"tags":["Divine Root"]}},{"id":"devotion_prof_armor_shield","name":"Templar Vestments","role":"devotion","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":326,"y":-295,"source5e":"Cleric / Paladin","summary":"Armor and shield proficiency consecrated for sacred service.","mechanics":"Gain proficiency with Light Armor, Medium Armor, and Shields. You may emblazon your shield as a Holy Symbol.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Light Armor","Medium Armor","Shields"],"spellTier":0,"tags":[]}},{"id":"devotion_skill_religion","name":"Religion","role":"devotion","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":445,"y":-235,"source5e":"Core Skill (INT)","summary":"Lore of deities, rites, planes, and sacred orders.","mechanics":"Gain proficiency in the Religion skill.","grants":{"hitDie":null,"saves":[],"skills":["Religion"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"devotion_hd_d8","name":"Tempered Vessel (d8)","role":"devotion","secondaryRoles":[],"category":"hit_die","tier":1,"cost":1,"prereqMode":"all","x":380,"y":-120,"source5e":"Cleric Hit Die Upgrade","summary":"Fortify your body through devotion, upgrading Hit Die to d8.","mechanics":"Your Hit Die becomes at least d8.","grants":{"hitDie":8,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"devotion_skill_medicine","name":"Medicine","role":"devotion","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":507,"y":-67,"source5e":"Core Skill (WIS)","summary":"Stabilize the dying, diagnose afflictions, and tend wounds.","mechanics":"Gain proficiency in the Medicine skill.","grants":{"hitDie":null,"saves":[],"skills":["Medicine"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"devotion_save_wis","name":"Wisdom Save","role":"devotion","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":427,"y":40,"source5e":"Saving Throw Proficiency","summary":"Steadfast mind against charm, fear, and domination.","mechanics":"Gain proficiency in Wisdom saving throws.","grants":{"hitDie":null,"saves":["WIS"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"devotion_skill_insight","name":"Insight","role":"devotion","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":609,"y":86,"source5e":"Core Skill (WIS)","summary":"Discern true intent, falsehoods, and hidden motives.","mechanics":"Gain proficiency in the Insight skill.","grants":{"hitDie":null,"saves":[],"skills":["Insight"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"devotion_channel_divinity","name":"Channel Divinity","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":550,"y":-317,"source5e":"Cleric 2 / Paladin 3","summary":"Invoke divine energy to Turn Undead or fuel domain/oath powers.","mechanics":"Gain Channel Divinity (1/SR, 2/SR at Tier II). Includes Turn Undead (WIS save, 30 ft) and unlocks Domain/Oath channel options.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Channel Divinity"]}},{"id":"devotion_divine_sense","name":"Divine Sense & Health","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":602,"y":-184,"source5e":"Paladin 1 & 3","summary":"Detect celestials, fiends, and undead; immune to disease.","mechanics":"Detect celestials/fiends/undead within 60 ft (1 + CHA mod/LR). You are immune to disease.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Disease Immune"]}},{"id":"devotion_lay_on_hands","name":"Lay on Hands","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":639,"y":-56,"source5e":"Paladin 1","summary":"A touch-healing pool of 5 × character level HP.","mechanics":"Healing pool equal to 5 × character level (long rest). Spend HP to heal by touch, or spend 5 HP to cure one disease or neutralize one poison.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Healing Pool"]}},{"id":"devotion_warding_flare","name":"Warding Flare","role":"devotion","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":676,"y":-491,"source5e":"Light Domain Cleric 1 & 2","summary":"Blind attackers with radiant light and unleash Radiance of the Dawn.","mechanics":"Reaction (WIS mod/LR): impose disadvantage on an attacker within 30 ft. Channel Divinity: dispel darkness and deal 2d10 + level radiant damage in 30 ft (CON half).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Radiant"]}},{"id":"devotion_aura_protection","name":"Aura of Protection","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":783,"y":-317,"source5e":"Paladin 6","summary":"Add your CHA or WIS modifier to all saving throws for you and nearby allies.","mechanics":"While conscious, you and friendly creatures within 10 ft (30 ft at Tier IV) gain a bonus to all saving throws equal to your CHA or WIS modifier (min +1).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Save Aura"]}},{"id":"devotion_disciple_life","name":"Disciple of Life","role":"devotion","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":827,"y":-116,"source5e":"Life Domain Cleric 1 & 2","summary":"Supercharge healing spells and Channel Divinity Preserve Life.","mechanics":"Healing spells restore an extra 2 + spell level HP. Channel Divinity: restore up to 5 × level HP divided among creatures within 30 ft (up to half max HP).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Master Healer"]}},{"id":"devotion_feat_healer_resilient","name":"Sanctuary of Will","role":"devotion","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":823,"y":58,"source5e":"Feat: Healer / Resilient Spirit","summary":"Advantage on death saves and emergency field triage.","mechanics":"Use a Healer’s Kit as an action to restore 1d6 + 4 + target HD HP (1/SR per creature). Gain advantage on death saving throws and +1 WIS or CHA.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Support Feat"]}},{"id":"devotion_destroy_undead","name":"Destroy Undead","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":920,"y":-621,"source5e":"Cleric 8 / 11","summary":"Annihilate low-CR undead outright and add radiant power to strikes/cantrips.","mechanics":"Undead of CR 2 or lower (CR 4 at Tier IV) failing Turn Undead are instantly destroyed. Once per turn, add +1d8 radiant damage to a weapon hit or cantrip.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Anti-Undead"]}},{"id":"devotion_aura_warding","name":"Aura of Warding","role":"devotion","secondaryRoles":[],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":1071,"y":-327,"source5e":"Oath of the Ancients 7 / Cleansing Touch 14","summary":"Grant resistance to all spell damage inside your aura.","mechanics":"You and friendly creatures within your Aura of Protection have resistance to damage from spells. Action: end one spell on yourself or a willing touched creature (CHA/WIS mod/LR).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Spell Resist Aura"]}},{"id":"devotion_divine_intervention","name":"Divine Intervention","role":"devotion","secondaryRoles":[],"category":"class_feature","tier":4,"cost":5,"prereqMode":"all","x":1165,"y":-672,"source5e":"Cleric 10 / 20","summary":"Call directly upon your deity to reshape reality.","mechanics":"Implore your deity for aid (automatic success at Level 20, or roll ≤ character level on d100). Replicates any Cleric spell or miracle of equal potency.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Miracle","Capstone"]}},{"id":"devotion_capstone_avatar","name":"Supreme Radiance","role":"devotion","secondaryRoles":[],"category":"subclass_feature","tier":4,"cost":5,"prereqMode":"all","x":1325,"y":-234,"source5e":"Life Cleric 17 / Devotion Paladin 20","summary":"Maximize all healing dice and radiate a 30-ft Holy Nimbus.","mechanics":"Maximize all dice rolled to restore HP with spells. Once per long rest, emanate sunlight for 1 minute dealing 10 radiant damage to enemies starting their turn within 30 ft.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Max Healing","Capstone"]}},{"id":"magic_root","name":"Magic","role":"magic","secondaryRoles":[],"category":"root","tier":0,"cost":1,"prereqMode":"all","x":153,"y":210,"source5e":"Core Role Root","summary":"Shape the arcane weave, command cantrips, and unlock spell slots.","mechanics":"Unlocks the Magic branch. Choose INT, WIS, or CHA as your primary spellcasting ability. Learn 2 cantrips and gain Arcane Focus proficiency.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Arcane Focus"],"spellTier":0,"tags":["Arcane Root","2 Cantrips"]}},{"id":"magic_save_int","name":"Intelligence Save","role":"magic","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":385,"y":213,"source5e":"Saving Throw Proficiency","summary":"Defend your mind against psionics, illusions, and feeblemind.","mechanics":"Gain proficiency in Intelligence saving throws.","grants":{"hitDie":null,"saves":["INT"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"magic_skill_arcana","name":"Arcana","role":"magic","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":368,"y":344,"source5e":"Core Skill (INT)","summary":"Knowledge of spells, magic items, eldritch symbols, and planes.","mechanics":"Gain proficiency in the Arcana skill.","grants":{"hitDie":null,"saves":[],"skills":["Arcana"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"magic_spell_t1","name":"Spellcasting I","role":"magic","secondaryRoles":[],"category":"spellcasting","tier":1,"cost":2,"prereqMode":"all","x":236,"y":336,"source5e":"5e Tier I Spellcasting (Lv 1–4)","summary":"Unlock 1st- and 2nd-level spell slots (up to 4/3 slots).","mechanics":"Gain 1st-level spell slots (and 2nd-level at Lv 3), +1 cantrip, and prepare/know spells equal to casting mod + proficiency bonus.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":1,"tags":["1st–2nd Slots"]}},{"id":"magic_skill_history","name":"History","role":"magic","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":209,"y":465,"source5e":"Core Skill (INT)","summary":"Recall ancient empires, legendary artifacts, and lost lineages.","mechanics":"Gain proficiency in the History skill.","grants":{"hitDie":null,"saves":[],"skills":["History"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"magic_prof_arcane_tools","name":"Arcane Craft","role":"magic","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":83,"y":418,"source5e":"Artisan Tools & Scroll Scribing","summary":"Brew potions and scribe spell scrolls.","mechanics":"Gain proficiency with Alchemist’s Supplies and Calligrapher’s Supplies. Halve time and gold cost to scribe scrolls.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Alchemist's Supplies","Calligrapher's Supplies"],"spellTier":0,"tags":[]}},{"id":"magic_ritual_casting","name":"Ritual Casting","role":"magic","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":529,"y":351,"source5e":"Wizard / Ritual Caster","summary":"Cast ritual spells without expending spell slots.","mechanics":"Maintain a ritual grimoire. Cast any spell you know with the ritual tag by adding 10 minutes without spending a slot.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Rituals"]}},{"id":"magic_arcane_recovery","name":"Arcane Recovery","role":"magic","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":453,"y":460,"source5e":"Wizard 1","summary":"Recover expended spell slots during a short rest.","mechanics":"Once per day on a short rest, recover spell slots with combined levels ≤ ceil(character level / 2) (none 6th or higher).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Slot Recovery"]}},{"id":"magic_font_metamagic","name":"Metamagic","role":"magic","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":303,"y":570,"source5e":"Sorcerer 2 & 3","summary":"Twist spells with Sorcery Points (Quickened, Twinned, Subtle).","mechanics":"Gain Sorcery Points equal to character level (or 3 + Tier×2) and 2 Metamagic options (Quickened, Twinned, Subtle, Careful, Distant, Empowered).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Metamagic"]}},{"id":"magic_eldritch_invocations","name":"Eldritch Invocations","role":"magic","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":175,"y":610,"source5e":"Warlock 2","summary":"Always-on eldritch augmentations and cantrip empowerment.","mechanics":"Learn 2 Eldritch Invocations (e.g., Agonizing Blast, Devil’s Sight, Mask of Many Faces, Repelling Blast); learn +1 additional invocation per Tier.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Invocations"]}},{"id":"magic_arcane_ward","name":"Arcane Ward","role":"magic","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":712,"y":445,"source5e":"Abjuration Wizard 2 & 6","summary":"Project a rechargeable magical shield that absorbs damage.","mechanics":"Create an Arcane Ward with HP = 2 × level + casting mod. Recharge it when casting abjuration spells; at Tier III, project it to shield allies within 30 ft.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Ward"]}},{"id":"magic_sculpt_spells","name":"Sculpt Spells","role":"magic","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":625,"y":583,"source5e":"Evocation Wizard 2 & 10","summary":"Carve safe pockets in area blasts to spare your allies.","mechanics":"Choose 1 + spell level allies when casting an AoE evocation spell; they automatically succeed on their save and take 0 damage.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Evocation"]}},{"id":"magic_spell_t2","name":"Spellcasting II","role":"magic","secondaryRoles":[],"category":"spellcasting","tier":2,"cost":3,"prereqMode":"all","x":497,"y":684,"source5e":"5e Tier II Spellcasting (Lv 5–10)","summary":"Unlock 3rd-, 4th-, and 5th-level spell slots.","mechanics":"Unlock 3rd-level slots (4th at Lv 7, 5th at Lv 9), +1 cantrip, and access to iconic mid-tier spells (Fireball, Counterspell, Haste, Fly, Wall of Force).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":2,"tags":["3rd–5th Slots"]}},{"id":"magic_pact_boon","name":"Pact Boon","role":"magic","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":260,"y":799,"source5e":"Warlock 3","summary":"Claim a Pact of the Tome, Chain familiar, or summoned Pact Blade.","mechanics":"Choose Pact of the Chain (upgraded familiar), Pact of the Tome (+3 cantrips from any list), or Pact of the Blade (summonable magical weapon using casting stat).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Pact Boon"]}},{"id":"magic_feat_warcaster","name":"War Caster","role":"magic","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":831,"y":582,"source5e":"Feat: War Caster","summary":"Advantage on Concentration saves and opportunity-attack spells.","mechanics":"Advantage on CON saves to maintain concentration; perform somatic components with hands full; cast a single-target spell as an opportunity attack.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Caster Feat"]}},{"id":"magic_feat_elem_adept","name":"Elemental Adept","role":"magic","secondaryRoles":[],"category":"feat","tier":3,"cost":3,"prereqMode":"all","x":823,"y":767,"source5e":"Feat: Elemental Adept & Spell Sniper","summary":"Pierce elemental resistance and double ranged spell reach.","mechanics":"Spells of your chosen element ignore resistance and treat 1s on damage dice as 2s. Double range on attack-roll spells and ignore half/three-quarters cover.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Elemental Pierce"]}},{"id":"magic_spell_t3","name":"Spellcasting III","role":"magic","secondaryRoles":[],"category":"spellcasting","tier":3,"cost":4,"prereqMode":"all","x":664,"y":914,"source5e":"5e Tier III Spellcasting (Lv 11–16)","summary":"Unlock 6th- and 7th-level spell slots.","mechanics":"Unlock 6th-level slots (7th at Lv 13) and high-magic incantations (Disintegrate, Chain Lightning, Forcecage, Teleport).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":3,"tags":["6th–7th Slots"]}},{"id":"magic_wild_surge","name":"Bend Luck & Chaos","role":"magic","secondaryRoles":[],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":438,"y":1031,"source5e":"Wild Magic Sorcerer 6 / 14","summary":"Manipulate d20 rolls with Sorcery Points and master arcane flux.","mechanics":"Reaction (2 Sorcery Points): add or subtract 1d4 from another creature’s attack roll, ability check, or saving throw. Gain +1 Metamagic option.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Fate Warp"]}},{"id":"magic_spell_mastery","name":"Spell Mastery","role":"magic","secondaryRoles":[],"category":"class_feature","tier":4,"cost":4,"prereqMode":"all","x":971,"y":938,"source5e":"Wizard 18","summary":"Cast a chosen 1st- and 2nd-level spell at will without slots.","mechanics":"Choose one 1st-level and one 2nd-level spell you know. Cast them at their lowest level at will without expending spell slots.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["At-Will Spells","Capstone"]}},{"id":"magic_spell_t4","name":"Archmage (Spellcasting IV)","role":"magic","secondaryRoles":[],"category":"spellcasting","tier":4,"cost":5,"prereqMode":"all","x":721,"y":1153,"source5e":"5e Tier IV Spellcasting (Lv 17–20)","summary":"Command 8th- and 9th-level world-shaping magic (Wish, Meteor Swarm).","mechanics":"Unlock 8th-level slots (9th at Lv 17) and ascend to true Archmage mastery.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":4,"tags":["8th–9th Slots","Capstone"]}},{"id":"social_root","name":"Social","role":"social","secondaryRoles":[],"category":"root","tier":0,"cost":1,"prereqMode":"all","x":-153,"y":210,"source5e":"Core Role Root","summary":"Diplomacy, performance, leadership, deception, and inspiring allies.","mechanics":"Unlocks the Social branch. Learn 1 extra Language and gain proficiency with 1 Musical Instrument or Gaming Set.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Musical Instrument / Gaming Set","Extra Language"],"spellTier":0,"tags":["Social Root"]}},{"id":"social_skill_performance","name":"Performance","role":"social","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-85,"y":432,"source5e":"Core Skill (CHA)","summary":"Captivate audiences through music, oratory, or theater.","mechanics":"Gain proficiency in the Performance skill.","grants":{"hitDie":null,"saves":[],"skills":["Performance"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"social_save_cha","name":"Charisma Save","role":"social","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":-216,"y":453,"source5e":"Saving Throw Proficiency","summary":"Anchor your sense of self against banishment and possession.","mechanics":"Gain proficiency in Charisma saving throws.","grants":{"hitDie":null,"saves":["CHA"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"social_skill_persuasion","name":"Persuasion","role":"social","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-239,"y":322,"source5e":"Core Skill (CHA)","summary":"Win allies, broker treaties, and sway hearts in good faith.","mechanics":"Gain proficiency in the Persuasion skill.","grants":{"hitDie":null,"saves":[],"skills":["Persuasion"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"social_skill_deception","name":"Deception","role":"social","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-372,"y":348,"source5e":"Core Skill (CHA)","summary":"Spin convincing bluffs, fast-talk guards, and conceal truths.","mechanics":"Gain proficiency in the Deception skill.","grants":{"hitDie":null,"saves":[],"skills":["Deception"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"social_skill_intimidation","name":"Intimidation","role":"social","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-373,"y":214,"source5e":"Core Skill (CHA)","summary":"Project menace, command obedience, and shatter enemy morale.","mechanics":"Gain proficiency in the Intimidation skill.","grants":{"hitDie":null,"saves":[],"skills":["Intimidation"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"social_bardic_inspiration","name":"Bardic Inspiration","role":"social","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":-219,"y":601,"source5e":"Bard 1","summary":"Grant allies bonus inspiration dice (d6 → d12) on key rolls.","mechanics":"Bonus action (CHA mod/LR; SR at Tier II): grant an ally within 60 ft an Inspiration die (d6 at T1, d8 at T2, d10 at T3, d12 at T4) to add to an ability check, attack roll, or save.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Inspiration"]}},{"id":"social_jack_of_trades","name":"Jack of All Trades","role":"social","secondaryRoles":[],"category":"class_feature","tier":1,"cost":1,"prereqMode":"all","x":-373,"y":514,"source5e":"Bard 2","summary":"Add half proficiency to all non-proficient checks & Song of Rest.","mechanics":"Add half your proficiency bonus (rounded down) to any ability check you make that doesn’t already include your proficiency bonus (including Initiative). Allies regain +1d6 HP on short rests.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Versatile"]}},{"id":"social_prof_intrigue_tools","name":"Persona & Forgery","role":"social","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":-497,"y":403,"source5e":"Charlatan / Spy / Assassin","summary":"Master Disguise Kits and Forgery Kits.","mechanics":"Gain proficiency with Disguise Kits and Forgery Kits, plus one established false identity.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Disguise Kit","Forgery Kit"],"spellTier":0,"tags":[]}},{"id":"social_cutting_words","name":"Cutting Words","role":"social","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":-261,"y":804,"source5e":"College of Lore Bard 3 & 5","summary":"Subtract Inspiration dice from enemy attacks, checks, or damage.","mechanics":"Reaction: spend a Bardic Inspiration die to subtract its roll from a visible creature’s attack roll, ability check, or damage roll within 60 ft. Inspiration now recharges on a short rest.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Debuff Reaction"]}},{"id":"social_countercharm","name":"Countercharm","role":"social","secondaryRoles":[],"category":"class_feature","tier":2,"cost":2,"prereqMode":"all","x":-402,"y":726,"source5e":"Bard 6","summary":"Rally allies with advantage against frightened and charmed effects.","mechanics":"Action (or Bonus Action once/SR): for 1 round, allies within 30 ft have advantage on saves against being frightened or charmed, and may immediately retry one failed save.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Anti-Fear/Charm"]}},{"id":"social_feat_inspiring_leader","name":"Inspiring Leader","role":"social","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":-543,"y":647,"source5e":"Feat: Inspiring Leader","summary":"Deliver a 10-minute speech granting Level + CHA Temp HP to the party.","mechanics":"Up to 6 friendly creatures who hear your 10-minute address gain temporary HP equal to your character level + CHA modifier (1/SR per creature).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Party Temp HP"]}},{"id":"social_silver_tongue","name":"Silver Tongue","role":"social","secondaryRoles":[],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":-661,"y":535,"source5e":"College of Eloquence Bard 3","summary":"Treat d20 rolls of 9 or lower as 10 on Persuasion and Deception.","mechanics":"Whenever you make a Persuasion or Deception check, treat a d20 roll of 9 or lower as a 10.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Social Floor 10"]}},{"id":"social_feat_actor","name":"Master Mimic (Actor)","role":"social","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":-714,"y":412,"source5e":"Feat: Actor","summary":"Imitate voices flawlessly and gain advantage while disguised.","mechanics":"Gain +1 CHA, advantage on Deception and Performance checks when passing yourself off as another person, and mimic any speech or sound heard for 1 minute.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Social Feat"]}},{"id":"social_peerless_skill","name":"Peerless Skill","role":"social","secondaryRoles":[],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":-458,"y":1028,"source5e":"College of Lore 14 / Swashbuckler Panache","summary":"Inspire your own ability checks and taunt or charm foes with pure panache.","mechanics":"Roll a Bardic Inspiration die and add it to your own ability check. Action: make a Persuasion check contested by Insight to impose disadvantage on a hostile foe attacking anyone else, or charm a non-hostile target for 1 minute.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Self-Inspire"]}},{"id":"social_command_presence","name":"Commanding Presence","role":"social","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":-781,"y":809,"source5e":"Warlord / Banneret / Conquest Presence","summary":"Turn fear and authority into decisive battlefield orders.","mechanics":"Bonus action (CHA mod/LR): issue a command allowing an ally within 60 ft to immediately use their reaction to move half speed or make one weapon attack; or force a foe within 30 ft to make a WIS save or become frightened for 1 minute.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Tactical Command"]}},{"id":"social_capstone_sovereign","name":"Sovereign Voice","role":"social","secondaryRoles":[],"category":"class_feature","tier":4,"cost":5,"prereqMode":"all","x":-755,"y":1119,"source5e":"Bard 20 / Universal Speech","summary":"Never start a fight without Inspiration and speak to all minds.","mechanics":"Roll initiative with 0 Inspiration dice to immediately regain 2 dice. All creatures with INT 4+ understand your speech; once per long rest, issue a Sovereign Decree granting all allies within 60 ft advantage on attacks and saves for 1 round.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Capstone"]}},{"id":"exploring_root","name":"Exploring","role":"exploring","secondaryRoles":[],"category":"root","tier":0,"cost":1,"prereqMode":"all","x":-247,"y":-80,"source5e":"Core Role Root","summary":"Stealth, scouting, traps, survival, mobility, and sharp senses.","mechanics":"Unlocks the Exploring branch. Gain +5 ft walking speed and proficiency with Explorer’s Pack navigation.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Explorer Root","+5 ft Speed"]}},{"id":"exploring_skill_investigation","name":"Investigation","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-430,"y":66,"source5e":"Core Skill (INT)","summary":"Uncover traps, secret doors, clues, and logical deductions.","mechanics":"Gain proficiency in the Investigation skill.","grants":{"hitDie":null,"saves":[],"skills":["Investigation"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_perception","name":"Perception","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-506,"y":-42,"source5e":"Core Skill (WIS)","summary":"Spot ambushes, hidden creatures, and faint details.","mechanics":"Gain proficiency in the Perception skill.","grants":{"hitDie":null,"saves":[],"skills":["Perception"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_survival","name":"Survival","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-380,"y":-81,"source5e":"Core Skill (WIS)","summary":"Track quarry, forage food, predict storms, and guide expeditions.","mechanics":"Gain proficiency in the Survival skill.","grants":{"hitDie":null,"saves":[],"skills":["Survival"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_nature","name":"Nature","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-466,"y":-187,"source5e":"Core Skill (INT)","summary":"Know beasts, flora, weather, and primal ecosystems.","mechanics":"Gain proficiency in the Nature skill.","grants":{"hitDie":null,"saves":[],"skills":["Nature"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_save_dex","name":"Dexterity Save","role":"exploring","secondaryRoles":[],"category":"save","tier":1,"cost":1,"prereqMode":"all","x":-334,"y":-205,"source5e":"Saving Throw Proficiency","summary":"Dodge fireballs, falling rubble, and dragon breath.","mechanics":"Gain proficiency in Dexterity saving throws.","grants":{"hitDie":null,"saves":["DEX"],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_stealth","name":"Stealth","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-411,"y":-312,"source5e":"Core Skill (DEX)","summary":"Move unseen and unheard through shadows and wilderness.","mechanics":"Gain proficiency in the Stealth skill.","grants":{"hitDie":null,"saves":[],"skills":["Stealth"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_prof_thieves_tools","name":"Thieves' Tools","role":"exploring","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":-635,"y":93,"source5e":"Rogue 1","summary":"Pick locks, disable traps, and bypass security mechanisms.","mechanics":"Gain proficiency with Thieves’ Tools and learn Thieves’ Cant.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Thieves' Tools"],"spellTier":0,"tags":["Thieves' Cant"]}},{"id":"exploring_expertise","name":"Expertise","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":-684,"y":-29,"source5e":"Rogue 1 / Bard 3","summary":"Double your proficiency bonus on two chosen skills or tools.","mechanics":"Choose two of your skill proficiencies (or one skill and Thieves’ Tools). Your proficiency bonus is doubled for any ability check using them.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Double Prof (2)"]}},{"id":"exploring_hd_d8","name":"Hardened Scout (d8)","role":"exploring","secondaryRoles":[],"category":"hit_die","tier":1,"cost":1,"prereqMode":"all","x":-602,"y":-133,"source5e":"Rogue / Monk / Druid Hit Die","summary":"Build trail-forged resilience, upgrading your Hit Die to d8.","mechanics":"Your Hit Die becomes at least d8.","grants":{"hitDie":8,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_prof_wild_tools","name":"Herbalism & Maps","role":"exploring","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":-669,"y":-247,"source5e":"Druid / Outlander","summary":"Craft healing potions and chart unknown regions.","mechanics":"Gain proficiency with Herbalism Kits and Cartographer’s Tools.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Herbalism Kit","Cartographer's Tools"],"spellTier":0,"tags":[]}},{"id":"exploring_skill_animal","name":"Animal Handling","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-545,"y":-293,"source5e":"Core Skill (WIS)","summary":"Calm mounts, read beasts, and bond with wild companions.","mechanics":"Gain proficiency in the Animal Handling skill.","grants":{"hitDie":null,"saves":[],"skills":["Animal Handling"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_acrobatics","name":"Acrobatics","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-594,"y":-418,"source5e":"Core Skill (DEX)","summary":"Tumble, balance on narrow ledges, and escape grapples.","mechanics":"Gain proficiency in the Acrobatics skill.","grants":{"hitDie":null,"saves":[],"skills":["Acrobatics"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_skill_sleight","name":"Sleight of Hand","role":"exploring","secondaryRoles":[],"category":"skill","tier":1,"cost":1,"prereqMode":"all","x":-463,"y":-433,"source5e":"Core Skill (DEX)","summary":"Legerdemain, pickpocketing, and concealing small objects.","mechanics":"Gain proficiency in the Sleight of Hand skill.","grants":{"hitDie":null,"saves":[],"skills":["Sleight of Hand"],"proficiencies":[],"spellTier":0,"tags":[]}},{"id":"exploring_prof_light_finesse","name":"Skirmisher Gear","role":"exploring","secondaryRoles":[],"category":"proficiency","tier":1,"cost":1,"prereqMode":"all","x":-292,"y":-369,"source5e":"Rogue 1","summary":"Light Armor plus rapiers, shortswords, hand crossbows, and shortbows.","mechanics":"Gain proficiency with Light Armor, Shortswords, Rapiers, Hand Crossbows, and Shortbows.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":["Light Armor","Finesse & Scout Weapons"],"spellTier":0,"tags":[]}},{"id":"exploring_feat_alert_mobile","name":"Alert & Mobile","role":"exploring","secondaryRoles":[],"category":"feat","tier":2,"cost":2,"prereqMode":"all","x":-865,"y":0,"source5e":"Feats: Alert / Mobile","summary":"+5 Initiative, cannot be surprised, and +10 ft movement speed.","mechanics":"Gain +5 bonus to Initiative, you can’t be surprised while conscious, and your walking speed increases by +10 ft.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["+5 Init","+10 ft Speed"]}},{"id":"exploring_natural_explorer","name":"Natural Explorer","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":2,"cost":2,"prereqMode":"all","x":-838,"y":-193,"source5e":"Ranger 1 & 8","summary":"Ignore nonmagical difficult terrain and master overland travel.","mechanics":"Moving through nonmagical difficult terrain costs no extra movement. Gain climbing and swimming speed equal to walking speed, plus double foraging and tracking mastery.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Climb/Swim Speed"]}},{"id":"exploring_cunning_action","name":"Cunning Action","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":2,"cost":2,"prereqMode":"all","x":-740,"y":-428,"source5e":"Rogue 2","summary":"Dash, Disengage, or Hide as a bonus action every turn.","mechanics":"On each of your turns in combat, you can use a bonus action to take the Dash, Disengage, or Hide action.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Bonus Mobility"]}},{"id":"exploring_evasion","name":"Evasion & Uncanny Dodge","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":-728,"y":-611,"source5e":"Rogue 5 & 7 / Monk 7","summary":"Halve attack damage with a reaction and take 0 damage on passed DEX saves.","mechanics":"Reaction: halve damage of an attack that hits you from an attacker you can see. On DEX saves for half damage, take 0 damage on success and half on failure.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Evasion","Uncanny Dodge"]}},{"id":"exploring_reliable_talent","name":"Reliable Talent","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":-1129,"y":-119,"source5e":"Rogue 11","summary":"Never roll below 10 on any proficient ability check.","mechanics":"Whenever you make an ability check that lets you add your proficiency bonus, treat a d20 roll of 9 or lower as a 10.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Skill Floor 10"]}},{"id":"exploring_vanish","name":"Vanish & Feral Senses","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":-1020,"y":-498,"source5e":"Ranger 14 & 18 / Rogue 14","summary":"Sense invisible foes within 30 ft and leave no trail.","mechanics":"You can’t be tracked by nonmagical means unless you choose to leave a trail. Gain 10-ft Blindsight and never suffer disadvantage attacking invisible creatures you can hear.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Blindsight 10 ft"]}},{"id":"exploring_capstone_phantom","name":"Stroke of Luck","role":"exploring","secondaryRoles":[],"category":"class_feature","tier":4,"cost":5,"prereqMode":"all","x":-1298,"y":-372,"source5e":"Rogue 20","summary":"Turn a missed attack into a hit or a failed check into a natural 20.","mechanics":"Once per short or long rest, turn a missed weapon attack into a hit, OR treat a failed ability check as if you rolled a 20 on the d20.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Auto-20","Capstone"]}},{"id":"hybrid_divine_smite","name":"Divine Smite","role":"hybrid","secondaryRoles":["combat","devotion"],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":461,"y":-635,"source5e":"Paladin 2 (Combat + Devotion)","summary":"Channel sacred wrath into melee hits for explosive radiant damage.","mechanics":"When you hit with a melee weapon attack, expend a spell slot or Channel Divinity charge to deal +2d8 radiant damage (+1d8 per slot level above 1st; +1d8 vs undead/fiends).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Combat+Devotion","Smite"]}},{"id":"hybrid_sacred_weapon","name":"Sacred Avenger","role":"hybrid","secondaryRoles":["combat","devotion"],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":620,"y":-854,"source5e":"Oath of Devotion 3 & Paladin 11","summary":"Every melee strike deals +1d8 radiant damage and glows with holy accuracy.","mechanics":"All melee weapon hits deal an extra 1d8 radiant damage (Improved Divine Smite). Channel Divinity: add CHA/WIS modifier to weapon attack rolls for 1 minute.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Combat+Devotion","+1d8 Radiant"]}},{"id":"hybrid_divine_magic","name":"Divine Soul","role":"hybrid","secondaryRoles":["devotion","magic"],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":747,"y":243,"source5e":"Cleric / Divine Soul Sorcerer (Devotion + Magic)","summary":"Unite divine and arcane spell lists and bend fate once per short rest.","mechanics":"You may learn/prepare both Cleric and Arcane spells using your spellcasting slots. Once per short rest, add 2d4 to a failed saving throw or missed attack roll.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Devotion+Magic","Cleric Spells"]}},{"id":"hybrid_radiant_conduit","name":"Celestial Conduit","role":"hybrid","secondaryRoles":["devotion","magic"],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":1003,"y":326,"source5e":"Celestial Warlock / Light Cleric 8","summary":"Empower radiant/healing spells and summon spectral wings of light.","mechanics":"Add your casting modifier to one damage roll of any radiant or fire spell. Gain a 30-ft flying speed for 1 minute once per short rest.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Devotion+Magic","Flight"]}},{"id":"hybrid_magical_secrets","name":"Magical Secrets","role":"hybrid","secondaryRoles":["magic","social"],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":0,"y":785,"source5e":"Bard 6 / 10 (Magic + Social)","summary":"Poach two spells from any tradition and weave subtle enchantments.","mechanics":"Learn 2 spells of any class list that you have slots to cast. Impose disadvantage on a target’s save against your enchantment or illusion spell once per short rest.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Magic+Social","Any-List Spells"]}},{"id":"hybrid_enthralling_weave","name":"Split Enchantment","role":"hybrid","secondaryRoles":["magic","social"],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":0,"y":1055,"source5e":"Enchantment Wizard 10 / Glamour Bard","summary":"Twin single-target enchantment spells automatically for free.","mechanics":"When you cast a single-target enchantment spell of 1st level or higher, you may target a second creature in range at no extra cost.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Magic+Social","Twin Enchant"]}},{"id":"hybrid_master_intrigue","name":"Master of Intrigue","role":"hybrid","secondaryRoles":["social","exploring"],"category":"subclass_feature","tier":2,"cost":2,"prereqMode":"all","x":-747,"y":243,"source5e":"Mastermind Rogue 3 (Social + Exploring)","summary":"Use the Help action at 30 ft as a bonus action and read social tells.","mechanics":"Use the Help action as a bonus action; when aiding an ally’s attack, the target can be within 30 ft. Spend 1 minute observing a creature to learn two of its relative stats.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Social+Exploring","30-ft Help"]}},{"id":"hybrid_shadow_network","name":"Spymaster’s Web","role":"hybrid","secondaryRoles":["social","exploring"],"category":"subclass_feature","tier":3,"cost":3,"prereqMode":"all","x":-1003,"y":326,"source5e":"Mastermind 13 / Whispers Bard","summary":"Redirect attacks onto nearby foes and shield your thoughts from magic.","mechanics":"Reaction: when targeted by an attack while a creature within 5 ft gives you cover, force the attack to target that creature instead. Thoughts cannot be read telepathically.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Social+Exploring","Misdirection"]}},{"id":"hybrid_sneak_attack","name":"Sneak Attack","role":"hybrid","secondaryRoles":["exploring","combat"],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":-344,"y":-490,"source5e":"Rogue 1 (Exploring + Combat)","summary":"Deal precision bonus dice (+1d6 to +6d6) with finesse or ranged weapons.","mechanics":"Once per turn, deal extra precision damage with a finesse or ranged weapon when you have advantage or an ally is within 5 ft of target: 2d6 at T1, 4d6 at T2, 6d6 at T3, 8d6 at T4.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Exploring+Combat","Sneak Attack"]}},{"id":"hybrid_martial_arts","name":"Martial Arts & Ki","role":"hybrid","secondaryRoles":["exploring","combat"],"category":"class_feature","tier":1,"cost":2,"prereqMode":"all","x":-337,"y":-622,"source5e":"Monk 1 & 2 (Exploring + Combat)","summary":"Unarmored Defense, DEX unarmed strikes, and Ki Flurry of Blows.","mechanics":"While unarmored, AC = 10 + DEX + WIS, unarmed strikes use DEX and d6 (d8 at T2, d10 at T3) + bonus unarmed strike. Gain Ki points (SR recharge) for Flurry of Blows & Patient Defense.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Exploring+Combat","Ki"]}},{"id":"hybrid_assassinate","name":"Assassinate & Hunter","role":"hybrid","secondaryRoles":["exploring","combat"],"category":"subclass_feature","tier":2,"cost":3,"prereqMode":"all","x":-599,"y":-665,"source5e":"Assassin Rogue 3 / Hunter Ranger 3","summary":"Auto-crit surprised foes and add +1d8 Colossus Slayer damage.","mechanics":"Advantage on attacks against creatures that haven’t acted yet; any hit against a surprised creature is a critical hit. Once per turn, deal +1d8 damage to an injured foe.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Exploring+Combat","Ambush Crit"]}},{"id":"hybrid_stunning_strike","name":"Stunning Strike","role":"hybrid","secondaryRoles":["exploring","combat"],"category":"class_feature","tier":3,"cost":3,"prereqMode":"all","x":-532,"y":-922,"source5e":"Monk 5 & 14 (Diamond Soul)","summary":"Spend 1 Ki on melee hit to Stun enemies (CON save).","mechanics":"When you hit with a melee attack, spend 1 Ki to force a CON save or Stun the target until the end of your next turn. Also spend 1 Ki to reroll a failed saving throw.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Exploring+Combat","Stun"]}},{"id":"hybrid_war_magic","name":"War Magic (Spellblade)","role":"hybrid","secondaryRoles":["combat","magic"],"category":"subclass_feature","tier":2,"cost":3,"prereqMode":"all","x":42,"y":-55,"source5e":"Eldritch Knight 7 / Bladesinger (Combat + Magic)","summary":"Weave steel and spells: cast a cantrip and strike as a bonus action.","mechanics":"When you use your action to cast a cantrip, make one weapon attack as a bonus action. Bond up to two weapons (cannot be disarmed; summon as bonus action).","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Combat+Magic","Gish"]}},{"id":"hybrid_wild_shape","name":"Wild Shape","role":"hybrid","secondaryRoles":["exploring","magic"],"category":"class_feature","tier":2,"cost":3,"prereqMode":"all","x":-72,"y":55,"source5e":"Druid 2 / Circle of the Moon (Exploring + Magic)","summary":"Transform into beasts as a bonus action (2/SR) with Primal spell access.","mechanics":"Bonus action (2/SR): transform into a beast up to CR 1 (CR = floor(level/3) at Tier III). Gain access to Druid primal spells through your spellcasting slots.","grants":{"hitDie":null,"saves":[],"skills":[],"proficiencies":[],"spellTier":0,"tags":["Hybrid: Exploring+Magic","Shapeshift"]}}],"edges":[{"id":"edge_combat_root__combat_skill_athletics","from":"combat_root","to":"combat_skill_athletics"},{"id":"edge_combat_root__combat_save_str","from":"combat_root","to":"combat_save_str"},{"id":"edge_combat_root__combat_prof_weapons_martial","from":"combat_root","to":"combat_prof_weapons_martial"},{"id":"edge_combat_root__combat_hd_d8","from":"combat_root","to":"combat_hd_d8"},{"id":"edge_combat_root__combat_prof_armor_med","from":"combat_root","to":"combat_prof_armor_med"},{"id":"edge_combat_skill_athletics__combat_rage","from":"combat_skill_athletics","to":"combat_rage"},{"id":"edge_combat_save_str__combat_rage","from":"combat_save_str","to":"combat_rage"},{"id":"edge_combat_prof_weapons_martial__combat_fighting_style","from":"combat_prof_weapons_martial","to":"combat_fighting_style"},{"id":"edge_combat_hd_d8__combat_second_wind","from":"combat_hd_d8","to":"combat_second_wind"},{"id":"edge_combat_hd_d8__combat_save_con","from":"combat_hd_d8","to":"combat_save_con"},{"id":"edge_combat_rage__combat_reckless_attack","from":"combat_rage","to":"combat_reckless_attack"},{"id":"edge_combat_fighting_style__combat_improved_crit","from":"combat_fighting_style","to":"combat_improved_crit"},{"id":"edge_combat_fighting_style__combat_extra_attack","from":"combat_fighting_style","to":"combat_extra_attack"},{"id":"edge_combat_fighting_style__combat_maneuvers","from":"combat_fighting_style","to":"combat_maneuvers"},{"id":"edge_combat_second_wind__combat_action_surge","from":"combat_second_wind","to":"combat_action_surge"},{"id":"edge_combat_hd_d8__combat_hd_d10","from":"combat_hd_d8","to":"combat_hd_d10"},{"id":"edge_combat_save_con__combat_hd_d10","from":"combat_save_con","to":"combat_hd_d10"},{"id":"edge_combat_prof_armor_med__combat_prof_armor_heavy","from":"combat_prof_armor_med","to":"combat_prof_armor_heavy"},{"id":"edge_combat_extra_attack__combat_feat_gwm","from":"combat_extra_attack","to":"combat_feat_gwm"},{"id":"edge_combat_prof_armor_heavy__combat_feat_sentinel","from":"combat_prof_armor_heavy","to":"combat_feat_sentinel"},{"id":"edge_combat_reckless_attack__combat_brutal_critical","from":"combat_reckless_attack","to":"combat_brutal_critical"},{"id":"edge_combat_improved_crit__combat_brutal_critical","from":"combat_improved_crit","to":"combat_brutal_critical"},{"id":"edge_combat_action_surge__combat_indomitable","from":"combat_action_surge","to":"combat_indomitable"},{"id":"edge_combat_save_con__combat_indomitable","from":"combat_save_con","to":"combat_indomitable"},{"id":"edge_combat_hd_d10__combat_hd_d12","from":"combat_hd_d10","to":"combat_hd_d12"},{"id":"edge_combat_extra_attack__combat_three_attacks","from":"combat_extra_attack","to":"combat_three_attacks"},{"id":"edge_combat_maneuvers__combat_three_attacks","from":"combat_maneuvers","to":"combat_three_attacks"},{"id":"edge_combat_brutal_critical__combat_capstone_titan","from":"combat_brutal_critical","to":"combat_capstone_titan"},{"id":"edge_combat_hd_d12__combat_capstone_titan","from":"combat_hd_d12","to":"combat_capstone_titan"},{"id":"edge_devotion_root__devotion_prof_armor_shield","from":"devotion_root","to":"devotion_prof_armor_shield"},{"id":"edge_devotion_root__devotion_skill_religion","from":"devotion_root","to":"devotion_skill_religion"},{"id":"edge_devotion_root__devotion_hd_d8","from":"devotion_root","to":"devotion_hd_d8"},{"id":"edge_devotion_root__devotion_skill_medicine","from":"devotion_root","to":"devotion_skill_medicine"},{"id":"edge_devotion_root__devotion_save_wis","from":"devotion_root","to":"devotion_save_wis"},{"id":"edge_devotion_save_wis__devotion_skill_insight","from":"devotion_save_wis","to":"devotion_skill_insight"},{"id":"edge_devotion_skill_religion__devotion_channel_divinity","from":"devotion_skill_religion","to":"devotion_channel_divinity"},{"id":"edge_devotion_hd_d8__devotion_divine_sense","from":"devotion_hd_d8","to":"devotion_divine_sense"},{"id":"edge_devotion_skill_medicine__devotion_lay_on_hands","from":"devotion_skill_medicine","to":"devotion_lay_on_hands"},{"id":"edge_devotion_channel_divinity__devotion_warding_flare","from":"devotion_channel_divinity","to":"devotion_warding_flare"},{"id":"edge_devotion_divine_sense__devotion_aura_protection","from":"devotion_divine_sense","to":"devotion_aura_protection"},{"id":"edge_devotion_save_wis__devotion_aura_protection","from":"devotion_save_wis","to":"devotion_aura_protection"},{"id":"edge_devotion_lay_on_hands__devotion_disciple_life","from":"devotion_lay_on_hands","to":"devotion_disciple_life"},{"id":"edge_devotion_channel_divinity__devotion_disciple_life","from":"devotion_channel_divinity","to":"devotion_disciple_life"},{"id":"edge_devotion_skill_medicine__devotion_feat_healer_resilient","from":"devotion_skill_medicine","to":"devotion_feat_healer_resilient"},{"id":"edge_devotion_skill_insight__devotion_feat_healer_resilient","from":"devotion_skill_insight","to":"devotion_feat_healer_resilient"},{"id":"edge_devotion_warding_flare__devotion_destroy_undead","from":"devotion_warding_flare","to":"devotion_destroy_undead"},{"id":"edge_devotion_aura_protection__devotion_aura_warding","from":"devotion_aura_protection","to":"devotion_aura_warding"},{"id":"edge_devotion_destroy_undead__devotion_divine_intervention","from":"devotion_destroy_undead","to":"devotion_divine_intervention"},{"id":"edge_devotion_aura_protection__devotion_divine_intervention","from":"devotion_aura_protection","to":"devotion_divine_intervention"},{"id":"edge_devotion_aura_warding__devotion_capstone_avatar","from":"devotion_aura_warding","to":"devotion_capstone_avatar"},{"id":"edge_devotion_disciple_life__devotion_capstone_avatar","from":"devotion_disciple_life","to":"devotion_capstone_avatar"},{"id":"edge_magic_root__magic_save_int","from":"magic_root","to":"magic_save_int"},{"id":"edge_magic_root__magic_skill_arcana","from":"magic_root","to":"magic_skill_arcana"},{"id":"edge_magic_root__magic_spell_t1","from":"magic_root","to":"magic_spell_t1"},{"id":"edge_magic_root__magic_skill_history","from":"magic_root","to":"magic_skill_history"},{"id":"edge_magic_root__magic_prof_arcane_tools","from":"magic_root","to":"magic_prof_arcane_tools"},{"id":"edge_magic_skill_arcana__magic_ritual_casting","from":"magic_skill_arcana","to":"magic_ritual_casting"},{"id":"edge_magic_spell_t1__magic_arcane_recovery","from":"magic_spell_t1","to":"magic_arcane_recovery"},{"id":"edge_magic_spell_t1__magic_font_metamagic","from":"magic_spell_t1","to":"magic_font_metamagic"},{"id":"edge_magic_skill_arcana__magic_eldritch_invocations","from":"magic_skill_arcana","to":"magic_eldritch_invocations"},{"id":"edge_magic_skill_history__magic_eldritch_invocations","from":"magic_skill_history","to":"magic_eldritch_invocations"},{"id":"edge_magic_save_int__magic_arcane_ward","from":"magic_save_int","to":"magic_arcane_ward"},{"id":"edge_magic_ritual_casting__magic_arcane_ward","from":"magic_ritual_casting","to":"magic_arcane_ward"},{"id":"edge_magic_arcane_recovery__magic_sculpt_spells","from":"magic_arcane_recovery","to":"magic_sculpt_spells"},{"id":"edge_magic_spell_t1__magic_spell_t2","from":"magic_spell_t1","to":"magic_spell_t2"},{"id":"edge_magic_eldritch_invocations__magic_pact_boon","from":"magic_eldritch_invocations","to":"magic_pact_boon"},{"id":"edge_magic_arcane_ward__magic_feat_warcaster","from":"magic_arcane_ward","to":"magic_feat_warcaster"},{"id":"edge_magic_sculpt_spells__magic_feat_elem_adept","from":"magic_sculpt_spells","to":"magic_feat_elem_adept"},{"id":"edge_magic_spell_t2__magic_spell_t3","from":"magic_spell_t2","to":"magic_spell_t3"},{"id":"edge_magic_font_metamagic__magic_wild_surge","from":"magic_font_metamagic","to":"magic_wild_surge"},{"id":"edge_magic_spell_t2__magic_wild_surge","from":"magic_spell_t2","to":"magic_wild_surge"},{"id":"edge_magic_spell_t3__magic_spell_mastery","from":"magic_spell_t3","to":"magic_spell_mastery"},{"id":"edge_magic_feat_elem_adept__magic_spell_mastery","from":"magic_feat_elem_adept","to":"magic_spell_mastery"},{"id":"edge_magic_spell_t3__magic_spell_t4","from":"magic_spell_t3","to":"magic_spell_t4"},{"id":"edge_social_root__social_skill_performance","from":"social_root","to":"social_skill_performance"},{"id":"edge_social_root__social_save_cha","from":"social_root","to":"social_save_cha"},{"id":"edge_social_root__social_skill_persuasion","from":"social_root","to":"social_skill_persuasion"},{"id":"edge_social_root__social_skill_deception","from":"social_root","to":"social_skill_deception"},{"id":"edge_social_root__social_skill_intimidation","from":"social_root","to":"social_skill_intimidation"},{"id":"edge_social_skill_performance__social_bardic_inspiration","from":"social_skill_performance","to":"social_bardic_inspiration"},{"id":"edge_social_skill_persuasion__social_jack_of_trades","from":"social_skill_persuasion","to":"social_jack_of_trades"},{"id":"edge_social_skill_deception__social_prof_intrigue_tools","from":"social_skill_deception","to":"social_prof_intrigue_tools"},{"id":"edge_social_bardic_inspiration__social_cutting_words","from":"social_bardic_inspiration","to":"social_cutting_words"},{"id":"edge_social_save_cha__social_countercharm","from":"social_save_cha","to":"social_countercharm"},{"id":"edge_social_bardic_inspiration__social_countercharm","from":"social_bardic_inspiration","to":"social_countercharm"},{"id":"edge_social_jack_of_trades__social_feat_inspiring_leader","from":"social_jack_of_trades","to":"social_feat_inspiring_leader"},{"id":"edge_social_skill_persuasion__social_silver_tongue","from":"social_skill_persuasion","to":"social_silver_tongue"},{"id":"edge_social_skill_deception__social_silver_tongue","from":"social_skill_deception","to":"social_silver_tongue"},{"id":"edge_social_prof_intrigue_tools__social_feat_actor","from":"social_prof_intrigue_tools","to":"social_feat_actor"},{"id":"edge_social_cutting_words__social_peerless_skill","from":"social_cutting_words","to":"social_peerless_skill"},{"id":"edge_social_countercharm__social_peerless_skill","from":"social_countercharm","to":"social_peerless_skill"},{"id":"edge_social_feat_inspiring_leader__social_command_presence","from":"social_feat_inspiring_leader","to":"social_command_presence"},{"id":"edge_social_skill_intimidation__social_command_presence","from":"social_skill_intimidation","to":"social_command_presence"},{"id":"edge_social_peerless_skill__social_capstone_sovereign","from":"social_peerless_skill","to":"social_capstone_sovereign"},{"id":"edge_social_command_presence__social_capstone_sovereign","from":"social_command_presence","to":"social_capstone_sovereign"},{"id":"edge_exploring_root__exploring_skill_investigation","from":"exploring_root","to":"exploring_skill_investigation"},{"id":"edge_exploring_root__exploring_skill_perception","from":"exploring_root","to":"exploring_skill_perception"},{"id":"edge_exploring_root__exploring_skill_survival","from":"exploring_root","to":"exploring_skill_survival"},{"id":"edge_exploring_root__exploring_skill_nature","from":"exploring_root","to":"exploring_skill_nature"},{"id":"edge_exploring_root__exploring_save_dex","from":"exploring_root","to":"exploring_save_dex"},{"id":"edge_exploring_root__exploring_skill_stealth","from":"exploring_root","to":"exploring_skill_stealth"},{"id":"edge_exploring_skill_investigation__exploring_prof_thieves_tools","from":"exploring_skill_investigation","to":"exploring_prof_thieves_tools"},{"id":"edge_exploring_skill_investigation__exploring_expertise","from":"exploring_skill_investigation","to":"exploring_expertise"},{"id":"edge_exploring_skill_perception__exploring_expertise","from":"exploring_skill_perception","to":"exploring_expertise"},{"id":"edge_exploring_skill_survival__exploring_hd_d8","from":"exploring_skill_survival","to":"exploring_hd_d8"},{"id":"edge_exploring_skill_survival__exploring_prof_wild_tools","from":"exploring_skill_survival","to":"exploring_prof_wild_tools"},{"id":"edge_exploring_skill_nature__exploring_prof_wild_tools","from":"exploring_skill_nature","to":"exploring_prof_wild_tools"},{"id":"edge_exploring_skill_nature__exploring_skill_animal","from":"exploring_skill_nature","to":"exploring_skill_animal"},{"id":"edge_exploring_save_dex__exploring_skill_acrobatics","from":"exploring_save_dex","to":"exploring_skill_acrobatics"},{"id":"edge_exploring_skill_stealth__exploring_skill_sleight","from":"exploring_skill_stealth","to":"exploring_skill_sleight"},{"id":"edge_exploring_root__exploring_prof_light_finesse","from":"exploring_root","to":"exploring_prof_light_finesse"},{"id":"edge_exploring_expertise__exploring_feat_alert_mobile","from":"exploring_expertise","to":"exploring_feat_alert_mobile"},{"id":"edge_exploring_hd_d8__exploring_feat_alert_mobile","from":"exploring_hd_d8","to":"exploring_feat_alert_mobile"},{"id":"edge_exploring_prof_wild_tools__exploring_natural_explorer","from":"exploring_prof_wild_tools","to":"exploring_natural_explorer"},{"id":"edge_exploring_skill_animal__exploring_natural_explorer","from":"exploring_skill_animal","to":"exploring_natural_explorer"},{"id":"edge_exploring_skill_stealth__exploring_cunning_action","from":"exploring_skill_stealth","to":"exploring_cunning_action"},{"id":"edge_exploring_skill_acrobatics__exploring_cunning_action","from":"exploring_skill_acrobatics","to":"exploring_cunning_action"},{"id":"edge_exploring_save_dex__exploring_evasion","from":"exploring_save_dex","to":"exploring_evasion"},{"id":"edge_exploring_cunning_action__exploring_evasion","from":"exploring_cunning_action","to":"exploring_evasion"},{"id":"edge_exploring_expertise__exploring_reliable_talent","from":"exploring_expertise","to":"exploring_reliable_talent"},{"id":"edge_exploring_feat_alert_mobile__exploring_reliable_talent","from":"exploring_feat_alert_mobile","to":"exploring_reliable_talent"},{"id":"edge_exploring_natural_explorer__exploring_vanish","from":"exploring_natural_explorer","to":"exploring_vanish"},{"id":"edge_exploring_evasion__exploring_vanish","from":"exploring_evasion","to":"exploring_vanish"},{"id":"edge_exploring_reliable_talent__exploring_capstone_phantom","from":"exploring_reliable_talent","to":"exploring_capstone_phantom"},{"id":"edge_exploring_vanish__exploring_capstone_phantom","from":"exploring_vanish","to":"exploring_capstone_phantom"},{"id":"edge_combat_prof_weapons_martial__hybrid_divine_smite","from":"combat_prof_weapons_martial","to":"hybrid_divine_smite"},{"id":"edge_devotion_channel_divinity__hybrid_divine_smite","from":"devotion_channel_divinity","to":"hybrid_divine_smite"},{"id":"edge_hybrid_divine_smite__hybrid_sacred_weapon","from":"hybrid_divine_smite","to":"hybrid_sacred_weapon"},{"id":"edge_combat_extra_attack__hybrid_sacred_weapon","from":"combat_extra_attack","to":"hybrid_sacred_weapon"},{"id":"edge_devotion_channel_divinity__hybrid_divine_magic","from":"devotion_channel_divinity","to":"hybrid_divine_magic"},{"id":"edge_magic_spell_t1__hybrid_divine_magic","from":"magic_spell_t1","to":"hybrid_divine_magic"},{"id":"edge_hybrid_divine_magic__hybrid_radiant_conduit","from":"hybrid_divine_magic","to":"hybrid_radiant_conduit"},{"id":"edge_magic_spell_t2__hybrid_radiant_conduit","from":"magic_spell_t2","to":"hybrid_radiant_conduit"},{"id":"edge_magic_spell_t1__hybrid_magical_secrets","from":"magic_spell_t1","to":"hybrid_magical_secrets"},{"id":"edge_social_bardic_inspiration__hybrid_magical_secrets","from":"social_bardic_inspiration","to":"hybrid_magical_secrets"},{"id":"edge_hybrid_magical_secrets__hybrid_enthralling_weave","from":"hybrid_magical_secrets","to":"hybrid_enthralling_weave"},{"id":"edge_magic_spell_t2__hybrid_enthralling_weave","from":"magic_spell_t2","to":"hybrid_enthralling_weave"},{"id":"edge_social_prof_intrigue_tools__hybrid_master_intrigue","from":"social_prof_intrigue_tools","to":"hybrid_master_intrigue"},{"id":"edge_exploring_expertise__hybrid_master_intrigue","from":"exploring_expertise","to":"hybrid_master_intrigue"},{"id":"edge_hybrid_master_intrigue__hybrid_shadow_network","from":"hybrid_master_intrigue","to":"hybrid_shadow_network"},{"id":"edge_social_silver_tongue__hybrid_shadow_network","from":"social_silver_tongue","to":"hybrid_shadow_network"},{"id":"edge_exploring_prof_light_finesse__hybrid_sneak_attack","from":"exploring_prof_light_finesse","to":"hybrid_sneak_attack"},{"id":"edge_combat_prof_weapons_martial__hybrid_sneak_attack","from":"combat_prof_weapons_martial","to":"hybrid_sneak_attack"},{"id":"edge_exploring_skill_acrobatics__hybrid_martial_arts","from":"exploring_skill_acrobatics","to":"hybrid_martial_arts"},{"id":"edge_combat_skill_athletics__hybrid_martial_arts","from":"combat_skill_athletics","to":"hybrid_martial_arts"},{"id":"edge_hybrid_sneak_attack__hybrid_assassinate","from":"hybrid_sneak_attack","to":"hybrid_assassinate"},{"id":"edge_exploring_cunning_action__hybrid_assassinate","from":"exploring_cunning_action","to":"hybrid_assassinate"},{"id":"edge_hybrid_martial_arts__hybrid_stunning_strike","from":"hybrid_martial_arts","to":"hybrid_stunning_strike"},{"id":"edge_combat_extra_attack__hybrid_stunning_strike","from":"combat_extra_attack","to":"hybrid_stunning_strike"},{"id":"edge_combat_fighting_style__hybrid_war_magic","from":"combat_fighting_style","to":"hybrid_war_magic"},{"id":"edge_magic_spell_t1__hybrid_war_magic","from":"magic_spell_t1","to":"hybrid_war_magic"},{"id":"edge_exploring_natural_explorer__hybrid_wild_shape","from":"exploring_natural_explorer","to":"hybrid_wild_shape"},{"id":"edge_magic_spell_t1__hybrid_wild_shape","from":"magic_spell_t1","to":"hybrid_wild_shape"}],"presets":[{"id":"preset_paladin","name":"Lv 5 Oathbound Paladin","level":5,"description":"Combat + Devotion vanguard wielding Divine Smite, Heavy Armor, and Lay on Hands.","unlocked":["combat_root","combat_prof_weapons_martial","combat_prof_armor_med","combat_hd_d8","combat_fighting_style","combat_extra_attack","devotion_root","devotion_skill_religion","devotion_skill_medicine","devotion_channel_divinity","devotion_lay_on_hands","hybrid_divine_smite"]},{"id":"preset_spellblade","name":"Lv 5 Eldritch Spellblade","level":5,"description":"Combat + Magic gish blending Fighting Style, Arcane Ward, and War Magic.","unlocked":["combat_root","combat_prof_weapons_martial","combat_prof_armor_med","combat_hd_d8","combat_fighting_style","combat_save_con","magic_root","magic_skill_arcana","magic_save_int","magic_spell_t1","magic_ritual_casting","magic_arcane_ward","hybrid_war_magic"]},{"id":"preset_shadow_scout","name":"Lv 5 Shadow Assassin","level":5,"description":"Exploring + Combat skirmisher with Sneak Attack, Cunning Action, Expertise, and Assassinate.","unlocked":["exploring_root","exploring_skill_stealth","exploring_skill_perception","exploring_skill_investigation","exploring_save_dex","exploring_skill_acrobatics","exploring_prof_light_finesse","exploring_expertise","exploring_cunning_action","combat_root","combat_prof_weapons_martial","hybrid_sneak_attack","hybrid_assassinate"]},{"id":"preset_arcane_diplomat","name":"Lv 5 Lore Bard","level":5,"description":"Social + Magic maestro combining Bardic Inspiration, Cutting Words, and Magical Secrets.","unlocked":["social_root","social_skill_performance","social_skill_persuasion","social_save_cha","social_bardic_inspiration","social_jack_of_trades","social_cutting_words","magic_root","magic_spell_t1","magic_spell_t2","hybrid_magical_secrets"]}]};
+  </script>
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'fivefold5e_artifact_web_v1';
+      const BUILD_KEY = 'fivefold5e_artifact_build_v1';
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const ALL_ROLES_ORDER = ['combat', 'devotion', 'magic', 'social', 'exploring', 'hybrid'];
+      const ALL_SAVES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+      const SPELL_TIER_LABELS = [
+        'None',
+        'Tier I (1st–2nd Slots)',
+        'Tier II (3rd–5th Slots)',
+        'Tier III (6th–7th Slots)',
+        'Tier IV — Archmage (8th–9th)',
+      ];
+      const TIER_ROMAN = ['0', 'I', 'II', 'III', 'IV'];
+      const TIER_RADII = [260, 560, 860, 1130, 1360];
+
+      const deepClone = (o) => JSON.parse(JSON.stringify(o));
+      const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+      function loadSavedTree() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const p = JSON.parse(raw);
+            if (p && Array.isArray(p.nodes) && Array.isArray(p.edges)) return p;
+          }
+        } catch (_) {}
+        return deepClone(window.FIVEFOLD_DEFAULT_TREE);
+      }
+      function saveTree() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); } catch (_) {}
+      }
+      function loadSavedBuild() {
+        try {
+          const raw = localStorage.getItem(BUILD_KEY);
+          if (raw) {
+            const p = JSON.parse(raw);
+            if (p && typeof p.level === 'number' && Array.isArray(p.unlocked)) {
+              return { level: Math.max(1, Math.min(20, p.level)), conMod: typeof p.conMod === 'number' ? p.conMod : 2, unlocked: new Set(p.unlocked) };
+            }
+          }
+        } catch (_) {}
+        return { level: 5, conMod: 2, unlocked: new Set() };
+      }
+      function saveBuild() {
+        try {
+          localStorage.setItem(BUILD_KEY, JSON.stringify({ level: state.build.level, conMod: state.build.conMod, unlocked: Array.from(state.build.unlocked) }));
+        } catch (_) {}
+      }
+
+      const state = {
+        data: loadSavedTree(),
+        mode: 'inspect',
+        buildSubTab: 'sheet',
+        selectedNodeId: 'combat_root',
+        hoveredNodeId: null,
+        filterRole: 'all',
+        filterCategory: 'all',
+        filterTier: 'all',
+        searchQuery: '',
+        showRings: true,
+        view: { tx: 0, ty: 0, scale: 0.9 },
+        build: loadSavedBuild(),
+        linkMode: false,
+        linkSourceId: null,
+        cursorWorld: { x: 0, y: 0 },
+        undoStack: [],
+        redoStack: [],
+      };
+
+      const getNode = (id) => state.data.nodes.find((n) => n.id === id) || null;
+      const getRoleInfo = (rid) => state.data.roles[rid] || { id: rid, name: rid, color: '#8f6339' };
+      const getParents = (nid) => state.data.edges.filter((e) => e.to === nid).map((e) => e.from);
+      const getChildren = (nid) => state.data.edges.filter((e) => e.from === nid).map((e) => e.to);
+
+      function wouldCreateCycle(fromId, toId) {
+        if (fromId === toId) return true;
+        const seen = new Set([toId]);
+        const q = [toId];
+        while (q.length) {
+          const cur = q.shift();
+          for (const e of state.data.edges) {
+            if (e.from === cur) {
+              if (e.to === fromId) return true;
+              if (!seen.has(e.to)) { seen.add(e.to); q.push(e.to); }
+            }
+          }
+        }
+        return false;
+      }
+
+      function pushUndo() {
+        state.undoStack.push(deepClone({ nodes: state.data.nodes, edges: state.data.edges }));
+        if (state.undoStack.length > 40) state.undoStack.shift();
+        state.redoStack = [];
+        updateUndoButtons();
+      }
+      function performUndo() {
+        if (!state.undoStack.length) return;
+        state.redoStack.push(deepClone({ nodes: state.data.nodes, edges: state.data.edges }));
+        const prev = state.undoStack.pop();
+        state.data.nodes = prev.nodes;
+        state.data.edges = prev.edges;
+        pruneInvalidBuildNodes();
+        saveTree();
+        renderAll();
+        showToast('Undid last change');
+      }
+      function performRedo() {
+        if (!state.redoStack.length) return;
+        state.undoStack.push(deepClone({ nodes: state.data.nodes, edges: state.data.edges }));
+        const next = state.redoStack.pop();
+        state.data.nodes = next.nodes;
+        state.data.edges = next.edges;
+        pruneInvalidBuildNodes();
+        saveTree();
+        renderAll();
+        showToast('Redid change');
+      }
+      function pruneInvalidBuildNodes() {
+        const ids = new Set(state.data.nodes.map((n) => n.id));
+        for (const id of Array.from(state.build.unlocked)) if (!ids.has(id)) state.build.unlocked.delete(id);
+      }
+
+      // Builder engine
+      const getTotalSP = (lv = state.build.level) => state.data.meta.startingPoints + (lv - 1) * state.data.meta.pointsPerLevel;
+      const getSpentSP = () => Array.from(state.build.unlocked).reduce((acc, id) => acc + (Number(getNode(id)?.cost) || 0), 0);
+      const getRemainingSP = () => getTotalSP() - getSpentSP();
+      const getProfBonus = (lv = state.build.level) => 2 + Math.floor((lv - 1) / 4);
+
+      function evaluateNodeBuildStatus(node) {
+        if (state.build.unlocked.has(node.id)) return { status: 'unlocked', reasons: [] };
+        const reasons = [];
+        const minLv = state.data.meta.tierMinLevels[node.tier] ?? 1;
+        if (state.build.level < minLv) reasons.push(`Requires Level ${minLv} (Tier ${TIER_ROMAN[node.tier]})`);
+        const parents = getParents(node.id);
+        if (parents.length) {
+          if (node.prereqMode === 'any') {
+            if (!parents.some((p) => state.build.unlocked.has(p))) {
+              reasons.push(`Requires any parent: ${parents.map((p) => getNode(p)?.name || p).join(' or ')}`);
+            }
+          } else {
+            const miss = parents.filter((p) => !state.build.unlocked.has(p));
+            if (miss.length) reasons.push(`Missing prerequisite: ${miss.map((p) => getNode(p)?.name || p).join(', ')}`);
+          }
+        }
+        const rem = getRemainingSP();
+        if (node.cost > rem) reasons.push(`Needs ${node.cost} SP (${rem} remaining)`);
+        return { status: reasons.length ? 'locked' : 'available', reasons };
+      }
+
+      function getBlockingUnlockedChildren(nodeId) {
+        const blockers = [];
+        for (const cid of getChildren(nodeId)) {
+          if (!state.build.unlocked.has(cid)) continue;
+          const child = getNode(cid);
+          if (!child) continue;
+          if (child.prereqMode === 'any') {
+            if (!getParents(cid).some((pid) => pid !== nodeId && state.build.unlocked.has(pid))) blockers.push(child);
+          } else blockers.push(child);
+        }
+        return blockers;
+      }
+
+      function toggleBuildNode(nodeId, cascade = false) {
+        const node = getNode(nodeId);
+        if (!node) return;
+        if (state.build.unlocked.has(nodeId)) {
+          const blockers = getBlockingUnlockedChildren(nodeId);
+          if (blockers.length && !cascade) {
+            showToast(`Blocked by: ${blockers.map((b) => b.name).join(', ')}. Use Refund Branch in drawer.`);
+            state.selectedNodeId = nodeId;
+            state.buildSubTab = 'node';
+            renderAll();
+            return;
+          }
+          if (cascade) {
+            const toRemove = new Set([nodeId]);
+            const q = [nodeId];
+            while (q.length) {
+              const cur = q.shift();
+              for (const cid of getChildren(cur)) {
+                if (!state.build.unlocked.has(cid) || toRemove.has(cid)) continue;
+                const ch = getNode(cid);
+                if (ch?.prereqMode === 'any' && getParents(cid).some((p) => !toRemove.has(p) && state.build.unlocked.has(p))) continue;
+                toRemove.add(cid);
+                q.push(cid);
+              }
+            }
+            for (const id of toRemove) state.build.unlocked.delete(id);
+            showToast(`Refunded ${toRemove.size} node(s)`);
+          } else {
+            state.build.unlocked.delete(nodeId);
+            showToast(`Refunded ${node.name} (+${node.cost} SP)`);
+          }
+          saveBuild();
+          renderAll();
+          return;
+        }
+        const ev = evaluateNodeBuildStatus(node);
+        if (ev.status !== 'available') {
+          showToast(ev.reasons[0]);
+          state.selectedNodeId = nodeId;
+          state.buildSubTab = 'node';
+          renderAll();
+          return;
+        }
+        state.build.unlocked.add(nodeId);
+        saveBuild();
+        renderAll();
+        showToast(`Unlocked ${node.name} (-${node.cost} SP)`);
+      }
+
+      function computeCharacterSummary() {
+        let hitDie = state.data.meta.baseHitDie || 6;
+        let spellTier = 0;
+        const saves = new Set(), skills = new Set(), proficiencies = new Set();
+        const features = [], feats = [], roots = [];
+        for (const id of state.build.unlocked) {
+          const n = getNode(id);
+          if (!n) continue;
+          if (n.grants?.hitDie > hitDie) hitDie = n.grants.hitDie;
+          if (n.grants?.spellTier > spellTier) spellTier = n.grants.spellTier;
+          (n.grants?.saves || []).forEach((s) => saves.add(s));
+          (n.grants?.skills || []).forEach((s) => skills.add(s));
+          (n.grants?.proficiencies || []).forEach((p) => proficiencies.add(p));
+          if (n.category === 'root') roots.push(n);
+          else if (n.category === 'feat') feats.push(n);
+          else if (['class_feature', 'subclass_feature', 'spellcasting'].includes(n.category)) features.push(n);
+        }
+        const lv = state.build.level, con = state.build.conMod;
+        const avgHp = Math.max(lv, hitDie + con + (lv - 1) * (Math.floor(hitDie / 2) + 1 + con));
+        return {
+          level: lv, conMod: con, profBonus: getProfBonus(lv),
+          totalSP: getTotalSP(lv), spentSP: getSpentSP(), remainingSP: getRemainingSP(),
+          hitDie, avgHp, spellTier, saves,
+          skills: Array.from(skills).sort(), proficiencies: Array.from(proficiencies).sort(),
+          roots, features, feats,
+        };
+      }
+
+      // DOM refs
+      const svg = document.getElementById('tree-svg');
+      const viewportG = document.getElementById('viewport-group');
+      const guidesLayer = document.getElementById('guides-layer');
+      const edgesLayer = document.getElementById('edges-layer');
+      const tempLinkLayer = document.getElementById('temp-link-layer');
+      const nodesLayer = document.getElementById('nodes-layer');
+      const inspectorContent = document.getElementById('inspector-content');
+      const buildSubtabs = document.getElementById('build-subtabs');
+      const rolePillsEl = document.getElementById('role-pills');
+      const treeCountsEl = document.getElementById('tree-counts');
+      const zoomReadoutEl = document.getElementById('zoom-readout');
+      const editCanvasToolsEl = document.getElementById('edit-canvas-tools');
+      const hudStatusEl = document.getElementById('hud-status');
+      const hudStatusTextEl = document.getElementById('hud-status-text');
+      const searchInput = document.getElementById('search-input');
+      const searchClear = document.getElementById('search-clear');
+      const searchResults = document.getElementById('search-results');
+
+      // Viewport helpers
+      function applyViewport() {
+        viewportG.setAttribute('transform', `translate(${state.view.tx}, ${state.view.ty}) scale(${state.view.scale})`);
+        zoomReadoutEl.textContent = `${Math.round(state.view.scale * 100)}%`;
+      }
+      function screenToWorld(cx, cy) {
+        const rect = svg.getBoundingClientRect();
+        const vb = svg.viewBox.baseVal;
+        const sx = vb.x + ((cx - rect.left) / rect.width) * vb.width;
+        const sy = vb.y + ((cy - rect.top) / rect.height) * vb.height;
+        return { x: (sx - state.view.tx) / state.view.scale, y: (sy - state.view.ty) / state.view.scale };
+      }
+      function fitToNodes(list = state.data.nodes, pad = 280) {
+        if (!list.length) { state.view = { tx: 0, ty: 0, scale: 0.9 }; applyViewport(); return; }
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (const n of list) {
+          if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+          if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+        }
+        const vb = svg.viewBox.baseVal;
+        const w = Math.max(400, maxX - minX + pad * 2);
+        const h = Math.max(400, maxY - minY + pad * 2);
+        const scale = Math.min(2.2, Math.max(0.35, Math.min(vb.width / w, vb.height / h)));
+        state.view = { scale, tx: -((minX + maxX) / 2) * scale, ty: -((minY + maxY) / 2) * scale };
+        applyViewport();
+      }
+      function panToNode(id, targetScale = 1.45) {
+        const n = getNode(id);
+        if (!n) return;
+        state.view.scale = Math.max(state.view.scale, targetScale);
+        state.view.tx = -n.x * state.view.scale;
+        state.view.ty = -n.y * state.view.scale;
+        applyViewport();
+      }
+      function zoomBy(factor, cx = null, cy = null) {
+        const oldS = state.view.scale;
+        const newS = Math.max(0.28, Math.min(3.5, oldS * factor));
+        if (cx !== null && cy !== null) {
+          const rect = svg.getBoundingClientRect();
+          const vb = svg.viewBox.baseVal;
+          const sx = vb.x + ((cx - rect.left) / rect.width) * vb.width;
+          const sy = vb.y + ((cy - rect.top) / rect.height) * vb.height;
+          const wx = (sx - state.view.tx) / oldS;
+          const wy = (sy - state.view.ty) / oldS;
+          state.view = { scale: newS, tx: sx - wx * newS, ty: sy - wy * newS };
+        } else {
+          state.view.tx *= newS / oldS;
+          state.view.ty *= newS / oldS;
+          state.view.scale = newS;
+        }
+        applyViewport();
+      }
+
+      // SVG rendering
+      function el(tag, attrs = {}, parent = null) {
+        const n = document.createElementNS(SVG_NS, tag);
+        for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+        if (parent) parent.appendChild(n);
+        return n;
+      }
+      function isNodeMatching(n) {
+        if (state.filterRole !== 'all') {
+          if (n.role !== state.filterRole && !(n.secondaryRoles || []).includes(state.filterRole)) return false;
+        }
+        if (state.filterCategory !== 'all' && n.category !== state.filterCategory) return false;
+        if (state.filterTier !== 'all' && String(n.tier) !== state.filterTier) return false;
+        const q = state.searchQuery.trim().toLowerCase();
+        if (q) {
+          const hay = [n.name, n.source5e, n.summary, n.mechanics, ...(n.grants?.skills || []), ...(n.grants?.saves || []), ...(n.grants?.proficiencies || []), ...(n.grants?.tags || [])].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      }
+      function nodeRadius(n) {
+        if (n.category === 'root') return 44;
+        if (n.category === 'spellcasting' || n.category === 'feat') return 31;
+        if (n.category === 'class_feature' || n.category === 'subclass_feature') return 29;
+        if (n.category === 'hit_die') return 28;
+        return 24;
+      }
+      function renderGuides() {
+        guidesLayer.innerHTML = '';
+        if (!state.showRings) return;
+        TIER_RADII.forEach((r, i) => {
+          el('circle', { cx: 0, cy: 0, r, class: 'tier-ring' }, guidesLayer);
+          const lbl = el('text', { x: 0, y: -r - 12, class: 'tier-ring-label' }, guidesLayer);
+          lbl.textContent = i === 0 ? 'ROOTS' : `TIER ${TIER_ROMAN[i]}`;
+        });
+        for (const rid of ['combat', 'devotion', 'magic', 'social', 'exploring']) {
+          const role = getRoleInfo(rid);
+          const rad = (role.angle * Math.PI) / 180;
+          const t = el('text', { x: Math.cos(rad) * 1490, y: Math.sin(rad) * 1490, class: 'sector-label', fill: role.color }, guidesLayer);
+          t.textContent = role.name.toUpperCase();
+        }
+      }
+      function computeEdgePath(a, b) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const ux = dx / d, uy = dy / d;
+        const x1 = a.x + ux * (nodeRadius(a) + 4), y1 = a.y + uy * (nodeRadius(a) + 4);
+        const x2 = b.x - ux * (nodeRadius(b) + 9), y2 = b.y - uy * (nodeRadius(b) + 9);
+        const cf = d > 550 ? 0.14 : 0.06;
+        const cx = (x1 + x2) / 2 - uy * d * cf;
+        const cy = (y1 + y2) / 2 + ux * d * cf;
+        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      function renderEdges(matchSet) {
+        edgesLayer.innerHTML = '';
+        const activeId = state.hoveredNodeId || state.selectedNodeId;
+        const map = new Map(state.data.nodes.map((n) => [n.id, n]));
+        for (const edge of state.data.edges) {
+          const from = map.get(edge.from), to = map.get(edge.to);
+          if (!from || !to) continue;
+          const bothMatch = matchSet.has(from.id) && matchSet.has(to.id);
+          const isAct = activeId && (edge.from === activeId || edge.to === activeId);
+          const isUnl = state.mode === 'build' && state.build.unlocked.has(from.id) && state.build.unlocked.has(to.id);
+          let cls = 'edge-path';
+          if (!bothMatch && !isAct) cls += ' dimmed';
+          if (isAct) cls += ' highlighted';
+          if (isUnl) cls += ' unlocked';
+          if (state.mode === 'edit') cls += ' editable';
+          const p = el('path', {
+            d: computeEdgePath(from, to),
+            class: cls,
+            'marker-end': isAct || isUnl ? 'url(#arrow-active)' : 'url(#arrow-default)',
+          }, edgesLayer);
+          if (isUnl || isAct) {
+            const col = getRoleInfo(to.role).color;
+            p.style.stroke = col;
+            p.style.color = col;
+          }
+          if (state.mode === 'edit') {
+            p.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              pushUndo();
+              state.data.edges = state.data.edges.filter((e) => e.id !== edge.id);
+              saveTree();
+              renderAll();
+              showToast(`Removed link: ${from.name} → ${to.name}`);
+            });
+          }
+        }
+      }
+      function polyPts(sides, r, rot = -90) {
+        const out = [];
+        for (let i = 0; i < sides; i++) {
+          const a = ((rot + (i * 360) / sides) * Math.PI) / 180;
+          out.push(`${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`);
+        }
+        return out.join(' ');
+      }
+      function glyphFor(n) {
+        if (n.category === 'root') return n.name.slice(0, 2).toUpperCase();
+        if (n.category === 'hit_die') return `d${n.grants?.hitDie || 8}`;
+        if (n.category === 'save') return n.grants?.saves?.[0] || 'SV';
+        if (n.category === 'spellcasting') return `S${TIER_ROMAN[n.grants?.spellTier || 1]}`;
+        if (n.category === 'feat') return '★';
+        if (n.category === 'subclass_feature') return '◆';
+        if (n.category === 'class_feature') return '❖';
+        if (n.category === 'proficiency') return '⚒';
+        return '●';
+      }
+      function drawShape(g, n, fill, stroke, sw) {
+        const r = nodeRadius(n);
+        if (n.category === 'root') {
+          el('polygon', { points: polyPts(8, r, 22.5), fill, stroke, 'stroke-width': sw + 1.5, class: 'node-shape' }, g);
+          el('polygon', { points: polyPts(8, r - 7, 22.5), fill: 'none', stroke, 'stroke-width': 1.2, 'stroke-opacity': 0.55 }, g);
+        } else if (n.category === 'class_feature') {
+          el('polygon', { points: polyPts(6, r, -90), fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else if (n.category === 'subclass_feature') {
+          el('polygon', { points: polyPts(8, r, 22.5), fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else if (n.category === 'feat') {
+          el('polygon', { points: polyPts(4, r + 2, -90), fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else if (n.category === 'spellcasting') {
+          el('circle', { cx: 0, cy: 0, r, fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+          el('circle', { cx: 0, cy: 0, r: r - 5.5, fill: 'none', stroke, 'stroke-width': 1.3, 'stroke-dasharray': '3 3' }, g);
+        } else if (n.category === 'hit_die') {
+          const d = `M 0 ${-r} L ${r * 0.88} ${-r * 0.55} L ${r * 0.78} ${r * 0.28} Q 0 ${r * 1.15} 0 ${r * 1.15} Q 0 ${r * 1.15} ${-r * 0.78} ${r * 0.28} L ${-r * 0.88} ${-r * 0.55} Z`;
+          el('path', { d, fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else if (n.category === 'proficiency') {
+          const s = r * 1.65;
+          el('rect', { x: -s / 2, y: -s / 2, width: s, height: s, rx: 7, fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else if (n.category === 'save') {
+          el('polygon', { points: polyPts(6, r + 1, 0), fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        } else {
+          el('circle', { cx: 0, cy: 0, r, fill, stroke, 'stroke-width': sw, class: 'node-shape' }, g);
+        }
+        if (n.role === 'hybrid' && (n.secondaryRoles || []).length >= 2) {
+          const ar = r + 5;
+          el('path', { d: `M 0 ${-ar} A ${ar} ${ar} 0 0 0 0 ${ar}`, fill: 'none', stroke: getRoleInfo(n.secondaryRoles[0]).color, 'stroke-width': 3, 'stroke-linecap': 'round' }, g);
+          el('path', { d: `M 0 ${-ar} A ${ar} ${ar} 0 0 1 0 ${ar}`, fill: 'none', stroke: getRoleInfo(n.secondaryRoles[1]).color, 'stroke-width': 3, 'stroke-linecap': 'round' }, g);
+        }
+      }
+
+      function renderNodes(matchSet) {
+        nodesLayer.innerHTML = '';
+        for (const n of state.data.nodes) {
+          const role = getRoleInfo(n.role);
+          const isSel = state.selectedNodeId === n.id;
+          const bEval = state.mode === 'build' ? evaluateNodeBuildStatus(n) : null;
+          let fill = 'var(--card)', stroke = role.color, sw = isSel ? 4 : 2.3, glyphCol = role.color;
+
+          if (state.mode === 'build') {
+            if (bEval.status === 'unlocked') { fill = role.color; stroke = 'var(--background)'; sw = isSel ? 4 : 2.5; glyphCol = '#ffffff'; }
+            else if (bEval.status === 'locked') { fill = 'var(--secondary)'; stroke = 'var(--border)'; glyphCol = 'var(--muted-foreground)'; }
+          } else if (n.category === 'root') {
+            fill = role.color; glyphCol = '#ffffff';
+          }
+
+          const g = el('g', { class: `node-group${matchSet.has(n.id) ? '' : ' dimmed'}`, transform: `translate(${n.x}, ${n.y})` }, nodesLayer);
+          if (isSel) el('circle', { cx: 0, cy: 0, r: nodeRadius(n) + 10, fill: 'none', stroke: 'var(--primary)', 'stroke-width': 2.8 }, g);
+          if (state.mode === 'build' && bEval.status === 'available') el('circle', { cx: 0, cy: 0, r: nodeRadius(n) + 8, class: 'available-halo', stroke: role.color }, g);
+          if (state.mode === 'edit' && state.linkMode && state.linkSourceId === n.id) {
+            el('circle', { cx: 0, cy: 0, r: nodeRadius(n) + 12, fill: 'none', stroke: 'var(--success)', 'stroke-width': 3.5, 'stroke-dasharray': '5 3' }, g);
+          }
+
+          drawShape(g, n, fill, stroke, sw);
+          const gl = el('text', { x: 0, y: 0, class: 'node-glyph', fill: glyphCol }, g);
+          if (n.category === 'root') gl.setAttribute('font-size', '14');
+          gl.textContent = glyphFor(n);
+
+          const r = nodeRadius(n);
+          const bx = r * 0.72, by = -r * 0.72;
+          const isUnl = state.mode === 'build' && bEval.status === 'unlocked';
+          el('circle', { cx: bx, cy: by, r: 9.5, fill: isUnl ? 'var(--success)' : 'var(--card)', stroke: isUnl ? 'var(--background)' : stroke, 'stroke-width': 1.5 }, g);
+          const ct = el('text', { x: bx, y: by, class: 'node-cost-badge', fill: isUnl ? '#ffffff' : 'var(--foreground)' }, g);
+          ct.textContent = isUnl ? '✓' : `${n.cost}`;
+
+          const lbl = el('text', { x: 0, y: r + 16, class: `node-label${n.category === 'root' ? ' root-label' : ''}` }, g);
+          lbl.textContent = n.name;
+
+          g.addEventListener('mouseenter', () => { if (state.hoveredNodeId !== n.id) { state.hoveredNodeId = n.id; renderEdges(matchSet); } });
+          g.addEventListener('mouseleave', () => { if (state.hoveredNodeId === n.id) { state.hoveredNodeId = null; renderEdges(matchSet); } });
+          g.addEventListener('pointerdown', (ev) => handleNodeDown(ev, n));
+        }
+      }
+
+      function renderTempLink() {
+        tempLinkLayer.innerHTML = '';
+        if (!state.linkMode || !state.linkSourceId) return;
+        const s = getNode(state.linkSourceId);
+        if (!s) return;
+        el('line', { x1: s.x, y1: s.y, x2: state.cursorWorld.x, y2: state.cursorWorld.y, stroke: 'var(--primary)', 'stroke-width': 2.8, 'stroke-dasharray': '7 5', 'pointer-events': 'none' }, tempLinkLayer);
+      }
+
+      function renderCanvas() {
+        const matchSet = new Set(state.data.nodes.filter(isNodeMatching).map((n) => n.id));
+        renderGuides();
+        renderEdges(matchSet);
+        renderNodes(matchSet);
+        renderTempLink();
+        treeCountsEl.textContent = `${state.data.nodes.length} nodes · ${state.data.edges.length} links`;
+      }
+
+      // Interactions
+      let drag = null;
+      function handleNodeDown(ev, node) {
+        if (ev.button !== 0) return;
+        ev.stopPropagation();
+        if (state.mode === 'edit' && state.linkMode) { handleLinkClick(node); return; }
+        const w = screenToWorld(ev.clientX, ev.clientY);
+        drag = {
+          type: state.mode === 'edit' ? 'node' : 'click',
+          node, startX: ev.clientX, startY: ev.clientY,
+          offX: node.x - w.x, offY: node.y - w.y, moved: false, undoPushed: false,
+        };
+      }
+      function handleLinkClick(node) {
+        if (!state.linkSourceId) {
+          state.linkSourceId = node.id;
+          setStatus(`Linking from "${node.name}" — click a child node`);
+          renderCanvas();
+          return;
+        }
+        if (state.linkSourceId === node.id) {
+          state.linkSourceId = null;
+          setStatus('Link Mode: click parent node, then child node');
+          renderCanvas();
+          return;
+        }
+        if (state.data.edges.some((e) => e.from === state.linkSourceId && e.to === node.id)) {
+          showToast('Link already exists');
+          state.linkSourceId = null;
+          renderCanvas();
+          return;
+        }
+        if (wouldCreateCycle(state.linkSourceId, node.id)) {
+          showToast('Blocked: would create a cycle (DAG required)');
+          state.linkSourceId = null;
+          renderCanvas();
+          return;
+        }
+        const src = getNode(state.linkSourceId);
+        pushUndo();
+        state.data.edges.push({ id: `edge_${state.linkSourceId}__${node.id}_${Date.now()}`, from: state.linkSourceId, to: node.id });
+        saveTree();
+        showToast(`Connected ${src.name} → ${node.name}`);
+        state.linkSourceId = null;
+        setStatus('Link Mode: click parent node, then child node');
+        renderAll();
+      }
+
+      svg.addEventListener('pointerdown', (ev) => {
+        if (ev.button !== 0 || ev.target.closest('.node-group')) return;
+        drag = { type: 'pan', startX: ev.clientX, startY: ev.clientY, origTx: state.view.tx, origTy: state.view.ty, moved: false };
+        svg.classList.add('panning');
+      });
+      svg.addEventListener('dblclick', (ev) => {
+        if (state.mode !== 'edit' || ev.target.closest('.node-group')) return;
+        const p = screenToWorld(ev.clientX, ev.clientY);
+        createNewNode({ x: Math.round(p.x), y: Math.round(p.y) });
+      });
+      window.addEventListener('pointermove', (ev) => {
+        if (state.linkMode && state.linkSourceId) { state.cursorWorld = screenToWorld(ev.clientX, ev.clientY); renderTempLink(); }
+        if (!drag) return;
+        const dx = ev.clientX - drag.startX, dy = ev.clientY - drag.startY;
+        if (!drag.moved && Math.hypot(dx, dy) > 4) drag.moved = true;
+        if (!drag.moved) return;
+        if (drag.type === 'pan') {
+          const rect = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+          state.view.tx = drag.origTx + (dx / rect.width) * vb.width;
+          state.view.ty = drag.origTy + (dy / rect.height) * vb.height;
+          applyViewport();
+        } else if (drag.type === 'node') {
+          if (!drag.undoPushed) { pushUndo(); drag.undoPushed = true; }
+          const p = screenToWorld(ev.clientX, ev.clientY);
+          drag.node.x = Math.round(p.x + drag.offX);
+          drag.node.y = Math.round(p.y + drag.offY);
+          renderCanvas();
+        }
+      });
+      window.addEventListener('pointerup', () => {
+        if (!drag) return;
+        const d = drag; drag = null;
+        svg.classList.remove('panning');
+        if (d.type === 'node' && d.moved) { saveTree(); renderInspector(); return; }
+        if ((d.type === 'node' || d.type === 'click') && !d.moved) {
+          state.selectedNodeId = d.node.id;
+          if (state.mode === 'build') toggleBuildNode(d.node.id);
+          else renderAll();
+        }
+      });
+      svg.addEventListener('wheel', (ev) => { ev.preventDefault(); zoomBy(ev.deltaY < 0 ? 1.12 : 0.89, ev.clientX, ev.clientY); }, { passive: false });
+
+      // Role pills
+      function renderRolePills() {
+        rolePillsEl.innerHTML = '';
+        const mk = (label, active, dotColor, onClick) => {
+          const b = document.createElement('button');
+          b.className = `px-2 py-1 rounded text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition border ${
+            active ? 'bg-[var(--background)] border-[var(--border)] text-[var(--foreground)]' : 'border-transparent text-[var(--muted-foreground)] hover:bg-[var(--secondary)]'
+          }`;
+          b.innerHTML = `${dotColor ? `<span class="w-2 h-2 rounded-full inline-block" style="background:${dotColor}"></span>` : ''}${esc(label)}`;
+          b.addEventListener('click', onClick);
+          rolePillsEl.appendChild(b);
+        };
+        mk('All', state.filterRole === 'all', null, () => { state.filterRole = 'all'; renderRolePills(); renderCanvas(); fitToNodes(); });
+        for (const rid of ALL_ROLES_ORDER) {
+          const r = getRoleInfo(rid);
+          mk(r.name, state.filterRole === rid, r.color, () => {
+            state.filterRole = state.filterRole === rid ? 'all' : rid;
+            renderRolePills();
+            renderCanvas();
+            if (state.filterRole === 'all') fitToNodes();
+            else fitToNodes(state.data.nodes.filter((n) => n.role === rid || (n.secondaryRoles || []).includes(rid)), 190);
+          });
+        }
+      }
+
+      function setStatus(msg = '') {
+        hudStatusTextEl.textContent = msg;
+        hudStatusEl.classList.toggle('hidden', !msg);
+        hudStatusEl.classList.toggle('flex', Boolean(msg));
+      }
+      function updateUndoButtons() {
+        document.getElementById('btn-undo').disabled = !state.undoStack.length;
+        document.getElementById('btn-redo').disabled = !state.redoStack.length;
+      }
+
+      // Inspector Drawer
+      const cardCls = 'rounded-lg border border-[var(--border)] bg-[var(--background)] p-3';
+      const titleCls = 'text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] mb-2 flex items-center justify-between';
+      const badgeCls = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--secondary)] border border-[var(--border)] text-[var(--foreground)]';
+      const chipCls = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--secondary)] cursor-pointer';
+      const inputCls = 'w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]';
+
+      function renderDetailsCards(n, showBuild = false) {
+        const role = getRoleInfo(n.role);
+        const cat = state.data.categories[n.category] || { label: n.category };
+        const parents = getParents(n.id).map(getNode).filter(Boolean);
+        const children = getChildren(n.id).map(getNode).filter(Boolean);
+        const minLv = state.data.meta.tierMinLevels[n.tier] ?? 1;
+        const grants = [];
+        if (n.grants?.hitDie) grants.push(`Hit Die d${n.grants.hitDie}`);
+        if (n.grants?.spellTier) grants.push(SPELL_TIER_LABELS[n.grants.spellTier]);
+        (n.grants?.saves || []).forEach((s) => grants.push(`${s} Save`));
+        (n.grants?.skills || []).forEach((s) => grants.push(`Skill: ${s}`));
+        (n.grants?.proficiencies || []).forEach((p) => grants.push(p));
+        (n.grants?.tags || []).forEach((t) => grants.push(t));
+
+        let buildHtml = '';
+        if (showBuild) {
+          const ev = evaluateNodeBuildStatus(n);
+          const blockers = ev.status === 'unlocked' ? getBlockingUnlockedChildren(n.id) : [];
+          if (ev.status === 'unlocked') {
+            buildHtml = `<div class="rounded-lg border border-[var(--success)] bg-[var(--secondary)] p-3 text-xs space-y-2">
+              <div class="font-semibold">Unlocked · ${n.cost} SP</div>
+              ${blockers.length ? `<div class="text-[var(--muted-foreground)]">Required by: ${blockers.map((b) => esc(b.name)).join(', ')}</div>` : ''}
+              <div>${
+                blockers.length
+                  ? `<button id="btn-refund-cascade" class="px-2.5 py-1 rounded border border-[var(--error)] text-[var(--error)] text-xs font-semibold cursor-pointer">Refund Branch (${blockers.length + 1}+ nodes)</button>`
+                  : `<button id="btn-toggle-unlock" class="px-2.5 py-1 rounded border border-[var(--error)] text-[var(--error)] text-xs font-semibold cursor-pointer">Refund (+${n.cost} SP)</button>`
+              }</div>
+            </div>`;
+          } else if (ev.status === 'available') {
+            buildHtml = `<div class="${cardCls} text-xs space-y-2">
+              <div class="font-semibold">Available · Cost ${n.cost} SP (${getRemainingSP()} remaining)</div>
+              <button id="btn-toggle-unlock" class="px-3 py-1.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Unlock ${esc(n.name)} (-${n.cost} SP)</button>
+            </div>`;
+          } else {
+            buildHtml = `<div class="rounded-lg border border-[var(--warning)] bg-[var(--secondary)] p-3 text-xs">
+              <div class="font-semibold mb-1">Locked</div>
+              <ul class="list-disc pl-4 space-y-0.5 text-[var(--muted-foreground)]">${ev.reasons.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+            </div>`;
+          }
+        }
+
+        return `
+          <div class="${cardCls}">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold border" style="color:${role.color};border-color:${role.color}">${esc(role.name)}</span>
+              <span class="font-mono text-xs text-[var(--muted-foreground)]">Tier ${TIER_ROMAN[n.tier]} · Lv ${minLv}+ · ${n.cost} SP</span>
+            </div>
+            <h2 class="text-base font-bold mt-2 leading-snug" style="font-family: Georgia, serif;">${esc(n.name)}</h2>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="${badgeCls}">${esc(cat.label)}</span>
+              <span class="${badgeCls}">${esc(n.source5e)}</span>
+              ${(n.secondaryRoles || []).map((sr) => `<span class="px-2 py-0.5 rounded-full text-xs font-semibold border" style="color:${getRoleInfo(sr).color};border-color:${getRoleInfo(sr).color}">${esc(getRoleInfo(sr).name)}</span>`).join('')}
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-2 leading-relaxed">${esc(n.summary)}</p>
+          </div>
+          ${buildHtml}
+          <div class="${cardCls}">
+            <div class="${titleCls}">5e Rules &amp; Mechanics</div>
+            <p class="text-xs leading-relaxed">${esc(n.mechanics)}</p>
+          </div>
+          ${grants.length ? `<div class="${cardCls}"><div class="${titleCls}">Structured Grants</div><div class="flex flex-wrap gap-1.5">${grants.map((g) => `<span class="${badgeCls}">${esc(g)}</span>`).join('')}</div></div>` : ''}
+          <div class="${cardCls}">
+            <div class="${titleCls}"><span>Prerequisites (${parents.length})</span><span class="normal-case font-normal">${parents.length > 1 ? (n.prereqMode === 'any' ? 'ANY' : 'ALL') : ''}</span></div>
+            ${parents.length ? `<div class="flex flex-wrap gap-1.5">${parents.map((p) => `<button class="${chipCls}" data-jump="${p.id}"><span class="w-2 h-2 rounded-full" style="background:${getRoleInfo(p.role).color}"></span>${esc(p.name)}</button>`).join('')}</div>` : `<div class="text-xs text-[var(--muted-foreground)]">Root Gateway</div>`}
+          </div>
+          <div class="${cardCls}">
+            <div class="${titleCls}">Unlocks (${children.length})</div>
+            ${children.length ? `<div class="flex flex-wrap gap-1.5">${children.map((c) => `<button class="${chipCls}" data-jump="${c.id}"><span class="w-2 h-2 rounded-full" style="background:${getRoleInfo(c.role).color}"></span>${esc(c.name)}</button>`).join('')}</div>` : `<div class="text-xs text-[var(--muted-foreground)]">Leaf / Capstone Node</div>`}
+          </div>
+        `;
+      }
+
+      function wireJumps() {
+        inspectorContent.querySelectorAll('[data-jump]').forEach((b) => {
+          b.addEventListener('click', () => {
+            state.selectedNodeId = b.dataset.jump;
+            panToNode(state.selectedNodeId, Math.max(1.25, state.view.scale));
+            renderAll();
+          });
+        });
+      }
+
+      function renderInspector() {
+        const isBuild = state.mode === 'build';
+        buildSubtabs.classList.toggle('hidden', !isBuild);
+        buildSubtabs.classList.toggle('flex', isBuild);
+        buildSubtabs.querySelectorAll('.sub-tab').forEach((b) => {
+          const act = b.dataset.btab === state.buildSubTab;
+          b.className = `sub-tab py-2.5 px-2 text-xs font-semibold border-b-2 cursor-pointer ${act ? 'border-[var(--primary)] text-[var(--foreground)]' : 'border-transparent text-[var(--muted-foreground)]'}`;
+        });
+
+        if (state.mode === 'inspect') {
+          const n = getNode(state.selectedNodeId);
+          if (!n) { inspectorContent.innerHTML = `<div class="text-xs text-[var(--muted-foreground)] text-center py-8">Click any node to inspect its 5e rules.</div>`; return; }
+          inspectorContent.innerHTML = `${renderDetailsCards(n)}<div class="flex gap-2">
+            <button id="q-build" class="flex-1 py-2 rounded-md bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Test in Build Mode</button>
+            <button id="q-edit" class="flex-1 py-2 rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-semibold cursor-pointer">Edit Node</button>
+          </div>`;
+          wireJumps();
+          document.getElementById('q-build').addEventListener('click', () => setMode('build'));
+          document.getElementById('q-edit').addEventListener('click', () => setMode('edit'));
+        } else if (state.mode === 'build') {
+          if (state.buildSubTab === 'node') {
+            const n = getNode(state.selectedNodeId);
+            if (!n) { inspectorContent.innerHTML = `<div class="text-xs text-[var(--muted-foreground)] text-center py-8">Click any node on the canvas to unlock it.</div>`; return; }
+            inspectorContent.innerHTML = renderDetailsCards(n, true);
+            wireJumps();
+            document.getElementById('btn-toggle-unlock')?.addEventListener('click', () => toggleBuildNode(n.id, false));
+            document.getElementById('btn-refund-cascade')?.addEventListener('click', () => toggleBuildNode(n.id, true));
+          } else {
+            const c = computeCharacterSummary();
+            const pct = Math.min(100, Math.round((c.spentSP / Math.max(1, c.totalSP)) * 100));
+            inspectorContent.innerHTML = `
+              <div class="${cardCls} space-y-2.5">
+                <div class="${titleCls}"><span>Level &amp; Budget</span><span class="font-mono">Prof +${c.profBonus}</span></div>
+                <div class="grid grid-cols-2 gap-2.5 text-xs">
+                  <label class="flex flex-col gap-1">Level <strong class="font-mono">${c.level}</strong>
+                    <input id="b-lv" type="range" min="1" max="20" value="${c.level}" class="accent-[var(--primary)]" />
+                  </label>
+                  <label class="flex flex-col gap-1">CON Mod <strong class="font-mono">${c.conMod >= 0 ? '+' : ''}${c.conMod}</strong>
+                    <input id="b-con" type="range" min="-1" max="5" value="${c.conMod}" class="accent-[var(--primary)]" />
+                  </label>
+                </div>
+                <div class="flex justify-between text-xs font-semibold">
+                  <span>Skill Points: ${c.spentSP} / ${c.totalSP}</span>
+                  <span style="color:${c.remainingSP < 0 ? 'var(--error)' : 'var(--success)'}">${c.remainingSP} left</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-[var(--secondary)] overflow-hidden">
+                  <div class="h-full bg-[var(--primary)] transition-all" style="width:${pct}%"></div>
+                </div>
+                <div class="flex gap-1.5 pt-1">
+                  <select id="b-preset" class="${inputCls} flex-1">
+                    <option value="">— Load Archetype Preset —</option>
+                    ${(state.data.presets || []).map((p) => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+                  </select>
+                  <button id="b-reset" class="px-2.5 rounded-md border border-[var(--error)] text-[var(--error)] text-xs font-semibold cursor-pointer">Reset</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div class="${cardCls}"><div class="text-xs text-[var(--muted-foreground)]">Hit Die / Avg HP</div><div class="font-mono text-base font-bold mt-0.5">d${c.hitDie} · ${c.avgHp} HP</div></div>
+                <div class="${cardCls}"><div class="text-xs text-[var(--muted-foreground)]">Spellcasting</div><div class="font-mono text-sm font-bold mt-1">${c.spellTier ? `Tier ${TIER_ROMAN[c.spellTier]}` : 'None'}</div></div>
+              </div>
+
+              <div class="${cardCls}">
+                <div class="${titleCls}">Saving Throws</div>
+                <div class="grid grid-cols-6 gap-1">
+                  ${ALL_SAVES.map((s) => `<div class="text-center py-1 rounded font-mono text-xs font-bold border ${c.saves.has(s) ? 'bg-[var(--success)] border-[var(--success)] text-white' : 'bg-[var(--card)] border-[var(--border)] text-[var(--muted-foreground)]'}">${s}</div>`).join('')}
+                </div>
+              </div>
+
+              <div class="${cardCls}">
+                <div class="${titleCls}">Skills (${c.skills.length} / 18)</div>
+                ${c.skills.length ? `<div class="flex flex-wrap gap-1">${c.skills.map((s) => `<span class="${badgeCls}">${esc(s)}</span>`).join('')}</div>` : `<div class="text-xs text-[var(--muted-foreground)]">Click Skill nodes on the canvas to unlock.</div>`}
+              </div>
+
+              <div class="${cardCls}">
+                <div class="${titleCls}">Proficiencies (${c.proficiencies.length})</div>
+                ${c.proficiencies.length ? `<div class="flex flex-wrap gap-1">${c.proficiencies.map((p) => `<span class="${badgeCls}">${esc(p)}</span>`).join('')}</div>` : `<div class="text-xs text-[var(--muted-foreground)]">None yet.</div>`}
+              </div>
+
+              <div class="${cardCls}">
+                <div class="${titleCls}">Unlocked Features &amp; Feats (${c.features.length + c.feats.length})</div>
+                ${(c.features.length + c.feats.length)
+                  ? `<div class="flex flex-wrap gap-1.5">${[...c.features, ...c.feats].map((f) => `<button class="${chipCls}" data-jump="${f.id}"><span class="w-2 h-2 rounded-full" style="background:${getRoleInfo(f.role).color}"></span>${esc(f.name)}</button>`).join('')}</div>`
+                  : `<div class="text-xs text-[var(--muted-foreground)]">Start by clicking any Role Root on the canvas, or load a preset above!</div>`}
+              </div>
+
+              <button id="b-export-md" class="w-full py-2 rounded-md bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">Export Character Sheet (.md)</button>
+            `;
+            wireJumps();
+            document.getElementById('b-lv').addEventListener('input', (e) => { state.build.level = Number(e.target.value); saveBuild(); renderAll(); });
+            document.getElementById('b-con').addEventListener('input', (e) => { state.build.conMod = Number(e.target.value); saveBuild(); renderInspector(); });
+            document.getElementById('b-preset').addEventListener('change', (e) => {
+              const p = (state.data.presets || []).find((x) => x.id === e.target.value);
+              if (!p) return;
+              state.build.level = p.level;
+              state.build.unlocked = new Set(p.unlocked.filter((id) => Boolean(getNode(id))));
+              saveBuild(); renderAll(); showToast(`Loaded ${p.name}`);
+            });
+            document.getElementById('b-reset').addEventListener('click', () => { state.build.unlocked.clear(); saveBuild(); renderAll(); showToast('Build reset'); });
+            document.getElementById('b-export-md').addEventListener('click', () => {
+              const md = [
+                `# Fivefold 5e Character (Level ${c.level})`, '',
+                `- **Hit Die:** d${c.hitDie} (Avg HP: ${c.avgHp})`,
+                `- **Proficiency Bonus:** +${c.profBonus}`,
+                `- **Skill Points:** ${c.spentSP} / ${c.totalSP}`,
+                `- **Spellcasting:** ${SPELL_TIER_LABELS[c.spellTier]}`,
+                `- **Saves:** ${ALL_SAVES.filter((s) => c.saves.has(s)).join(', ') || 'None'}`,
+                `- **Skills:** ${c.skills.join(', ') || 'None'}`,
+                `- **Proficiencies:** ${c.proficiencies.join(', ') || 'None'}`, '',
+                '## Features & Feats',
+                ...[...c.features, ...c.feats].map((f) => `- **${f.name}** (*${f.source5e}*): ${f.summary}`),
+              ].join('\n');
+              downloadText(`fivefold5e-lv${c.level}.md`, md, 'text/markdown');
+              showToast('Exported Character Sheet');
+            });
+          }
+        } else {
+          renderEditPanel();
+        }
+      }
+
+      function createNewNode({ x, y, parentId = null } = {}) {
+        pushUndo();
+        const parent = parentId ? getNode(parentId) : null;
+        let nx = x, ny = y;
+        if (nx === undefined || ny === undefined) {
+          if (parent) {
+            const ang = Math.atan2(parent.y, parent.x) + 0.08;
+            const r = Math.hypot(parent.x, parent.y) + 175;
+            nx = Math.round(Math.cos(ang) * r); ny = Math.round(Math.sin(ang) * r);
+          } else { nx = 0; ny = 0; }
+        }
+        const id = `custom_${Date.now().toString(36)}`;
+        const tier = parent ? Math.min(4, parent.tier + 1) : 1;
+        state.data.nodes.push({
+          id, name: 'New Feature', role: parent ? parent.role : 'combat',
+          secondaryRoles: parent?.role === 'hybrid' ? ['combat', 'magic'] : [],
+          category: 'class_feature', tier, cost: Math.max(1, tier), prereqMode: 'all',
+          x: nx, y: ny, source5e: 'Homebrew / Custom',
+          summary: 'Short summary of what this node grants.',
+          mechanics: 'Full 5e mechanics and scaling.',
+          grants: { hitDie: null, saves: [], skills: [], proficiencies: [], spellTier: 0, tags: [] },
+        });
+        if (parent) state.data.edges.push({ id: `edge_${parent.id}__${id}`, from: parent.id, to: id });
+        state.selectedNodeId = id;
+        saveTree(); renderAll(); panToNode(id, Math.max(1.1, state.view.scale));
+        showToast(parent ? `Added child under ${parent.name}` : 'Created new node');
+      }
+
+      function renderEditPanel() {
+        const n = getNode(state.selectedNodeId);
+        if (!n) {
+          inspectorContent.innerHTML = `<div class="${cardCls} space-y-2 text-xs">
+            <div class="${titleCls}">Web Editor</div>
+            <p class="text-[var(--muted-foreground)]">Select a node to edit, drag to move, double-click canvas to add, or click any edge to unlink.</p>
+            <div class="flex gap-2">
+              <button id="e-add" class="flex-1 py-1.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold cursor-pointer">+ Add Node</button>
+              <button id="e-reset" class="px-3 py-1.5 rounded border border-[var(--error)] text-[var(--error)] font-semibold cursor-pointer">Reset SRD</button>
+            </div>
+          </div>`;
+          document.getElementById('e-add').addEventListener('click', () => createNewNode({ x: 0, y: 0 }));
+          document.getElementById('e-reset').addEventListener('click', resetDefaultTree);
+          return;
+        }
+        const parents = getParents(n.id).map(getNode).filter(Boolean);
+        const children = getChildren(n.id).map(getNode).filter(Boolean);
+        const pSet = new Set(parents.map((p) => p.id));
+        const cands = state.data.nodes.filter((c) => c.id !== n.id && !pSet.has(c.id) && !wouldCreateCycle(c.id, n.id)).sort((a, b) => a.name.localeCompare(b.name));
+
+        inspectorContent.innerHTML = `
+          <div class="${cardCls} space-y-2">
+            <div class="flex gap-1.5">
+              <button id="e-child" class="flex-1 py-1.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer">+ Add Child</button>
+              <button id="e-del" class="px-2.5 py-1.5 rounded border border-[var(--error)] text-[var(--error)] text-xs font-semibold cursor-pointer">Delete</button>
+              <button id="e-reset" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--card)] text-xs font-medium cursor-pointer">Reset SRD</button>
+            </div>
+            <div class="text-xs text-[var(--muted-foreground)]">Drag nodes on canvas · Double-click to add · Click any edge to unlink.</div>
+          </div>
+
+          <div class="${cardCls} space-y-2 text-xs">
+            <div class="${titleCls}">Node Properties</div>
+            <label class="block space-y-1">Name <input id="ed-name" class="${inputCls}" value="${esc(n.name)}" /></label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="block space-y-1">Role
+                <select id="ed-role" class="${inputCls}">
+                  ${ALL_ROLES_ORDER.map((r) => `<option value="${r}" ${n.role === r ? 'selected' : ''}>${esc(getRoleInfo(r).name)}</option>`).join('')}
+                </select>
+              </label>
+              <label class="block space-y-1">Category
+                <select id="ed-cat" class="${inputCls}">
+                  ${Object.values(state.data.categories).map((c) => `<option value="${c.id}" ${n.category === c.id ? 'selected' : ''}>${esc(c.label)}</option>`).join('')}
+                </select>
+              </label>
+              <label class="block space-y-1">Tier
+                <select id="ed-tier" class="${inputCls}">
+                  ${[0,1,2,3,4].map((t) => `<option value="${t}" ${n.tier === t ? 'selected' : ''}>Tier ${TIER_ROMAN[t]}</option>`).join('')}
+                </select>
+              </label>
+              <label class="block space-y-1">SP Cost <input id="ed-cost" type="number" min="0" max="20" class="${inputCls}" value="${n.cost}" /></label>
+              <label class="block space-y-1">Prereq Mode
+                <select id="ed-pm" class="${inputCls}">
+                  <option value="all" ${n.prereqMode !== 'any' ? 'selected' : ''}>ALL parents</option>
+                  <option value="any" ${n.prereqMode === 'any' ? 'selected' : ''}>ANY parent</option>
+                </select>
+              </label>
+              <label class="block space-y-1">5e Source <input id="ed-src" class="${inputCls}" value="${esc(n.source5e)}" /></label>
+            </div>
+            ${n.role === 'hybrid' ? `<div class="space-y-1"><div>Hybrid Linked Roles</div><div class="flex flex-wrap gap-1.5">${['combat','devotion','magic','social','exploring'].map((r) => `<label class="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-[var(--border)] bg-[var(--card)] cursor-pointer"><input type="checkbox" data-sr="${r}" ${(n.secondaryRoles||[]).includes(r)?'checked':''} />${esc(getRoleInfo(r).name)}</label>`).join('')}</div></div>` : ''}
+            <label class="block space-y-1">Summary <input id="ed-sum" class="${inputCls}" value="${esc(n.summary)}" /></label>
+            <label class="block space-y-1">Mechanics <textarea id="ed-mech" rows="3" class="${inputCls}">${esc(n.mechanics)}</textarea></label>
+          </div>
+
+          <div class="${cardCls} space-y-2 text-xs">
+            <div class="${titleCls}">Structured Grants</div>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="block space-y-1">Hit Die
+                <select id="ed-hd" class="${inputCls}">
+                  <option value="" ${!n.grants?.hitDie?'selected':''}>None</option>
+                  <option value="8" ${n.grants?.hitDie===8?'selected':''}>d8</option>
+                  <option value="10" ${n.grants?.hitDie===10?'selected':''}>d10</option>
+                  <option value="12" ${n.grants?.hitDie===12?'selected':''}>d12</option>
+                </select>
+              </label>
+              <label class="block space-y-1">Spell Tier
+                <select id="ed-sp" class="${inputCls}">
+                  ${SPELL_TIER_LABELS.map((l,i) => `<option value="${i}" ${(n.grants?.spellTier||0)===i?'selected':''}>${esc(l)}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <div class="space-y-1"><div>Saving Throws</div><div class="flex flex-wrap gap-1">${ALL_SAVES.map((s) => `<label class="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-[var(--border)] bg-[var(--card)] cursor-pointer"><input type="checkbox" data-gs="${s}" ${(n.grants?.saves||[]).includes(s)?'checked':''} />${s}</label>`).join('')}</div></div>
+            <label class="block space-y-1">Skills (CSV) <input id="ed-sk" class="${inputCls}" value="${esc((n.grants?.skills||[]).join(', '))}" /></label>
+            <label class="block space-y-1">Proficiencies (CSV) <input id="ed-pr" class="${inputCls}" value="${esc((n.grants?.proficiencies||[]).join(', '))}" /></label>
+            <label class="block space-y-1">Tags (CSV) <input id="ed-tg" class="${inputCls}" value="${esc((n.grants?.tags||[]).join(', '))}" /></label>
+          </div>
+
+          <div class="${cardCls} space-y-2 text-xs">
+            <div class="${titleCls}">Parent Links (${parents.length})</div>
+            <div class="flex flex-wrap gap-1">${parents.length ? parents.map((p) => `<span class="${chipCls}"><span data-jump="${p.id}">${esc(p.name)}</span><button data-up="${p.id}" class="text-[var(--error)] font-bold ml-1 cursor-pointer">&times;</button></span>`).join('') : `<span class="text-[var(--muted-foreground)]">None</span>`}</div>
+            <div class="flex gap-1.5">
+              <select id="ed-ap-sel" class="${inputCls} flex-1"><option value="">+ Add parent...</option>${cands.map((c) => `<option value="${c.id}">${esc(c.name)} (T${c.tier})</option>`).join('')}</select>
+              <button id="ed-ap-btn" class="px-2.5 rounded border border-[var(--border)] bg-[var(--card)] font-semibold cursor-pointer">Add</button>
+            </div>
+            <div class="${titleCls} pt-2">Children (${children.length})</div>
+            <div class="flex flex-wrap gap-1">${children.length ? children.map((c) => `<span class="${chipCls}"><span data-jump="${c.id}">${esc(c.name)}</span><button data-uc="${c.id}" class="text-[var(--error)] font-bold ml-1 cursor-pointer">&times;</button></span>`).join('') : `<span class="text-[var(--muted-foreground)]">None</span>`}</div>
+          </div>
+        `;
+        wireJumps();
+        const mut = (fn, re = false) => { pushUndo(); fn(); saveTree(); renderCanvas(); if (re) renderInspector(); };
+        const csv = (v) => v.split(',').map((s) => s.trim()).filter(Boolean);
+
+        document.getElementById('e-child').addEventListener('click', () => createNewNode({ parentId: n.id }));
+        document.getElementById('e-del').addEventListener('click', () => {
+          pushUndo();
+          state.data.nodes = state.data.nodes.filter((x) => x.id !== n.id);
+          state.data.edges = state.data.edges.filter((e) => e.from !== n.id && e.to !== n.id);
+          state.build.unlocked.delete(n.id);
+          state.selectedNodeId = state.data.nodes[0]?.id || null;
+          saveTree(); saveBuild(); renderAll(); showToast(`Deleted ${n.name}`);
+        });
+        document.getElementById('e-reset').addEventListener('click', resetDefaultTree);
+        document.getElementById('ed-name').addEventListener('change', (e) => mut(() => { n.name = e.target.value.trim() || 'Untitled'; }));
+        document.getElementById('ed-role').addEventListener('change', (e) => mut(() => { n.role = e.target.value; if (n.role === 'hybrid' && (n.secondaryRoles||[]).length < 2) n.secondaryRoles = ['combat','magic']; }, true));
+        document.getElementById('ed-cat').addEventListener('change', (e) => mut(() => { n.category = e.target.value; }));
+        document.getElementById('ed-tier').addEventListener('change', (e) => mut(() => { n.tier = Number(e.target.value); }));
+        document.getElementById('ed-cost').addEventListener('change', (e) => mut(() => { n.cost = Math.max(0, Number(e.target.value) || 0); }));
+        document.getElementById('ed-pm').addEventListener('change', (e) => mut(() => { n.prereqMode = e.target.value; }));
+        document.getElementById('ed-src').addEventListener('change', (e) => mut(() => { n.source5e = e.target.value; }));
+        document.getElementById('ed-sum').addEventListener('change', (e) => mut(() => { n.summary = e.target.value; }));
+        document.getElementById('ed-mech').addEventListener('change', (e) => mut(() => { n.mechanics = e.target.value; }));
+        inspectorContent.querySelectorAll('[data-sr]').forEach((cb) => cb.addEventListener('change', () => mut(() => { n.secondaryRoles = Array.from(inspectorContent.querySelectorAll('[data-sr]:checked')).map((x) => x.dataset.sr); })));
+        document.getElementById('ed-hd').addEventListener('change', (e) => mut(() => { n.grants.hitDie = e.target.value ? Number(e.target.value) : null; }));
+        document.getElementById('ed-sp').addEventListener('change', (e) => mut(() => { n.grants.spellTier = Number(e.target.value) || 0; }));
+        inspectorContent.querySelectorAll('[data-gs]').forEach((cb) => cb.addEventListener('change', () => mut(() => { n.grants.saves = Array.from(inspectorContent.querySelectorAll('[data-gs]:checked')).map((x) => x.dataset.gs); })));
+        document.getElementById('ed-sk').addEventListener('change', (e) => mut(() => { n.grants.skills = csv(e.target.value); }));
+        document.getElementById('ed-pr').addEventListener('change', (e) => mut(() => { n.grants.proficiencies = csv(e.target.value); }));
+        document.getElementById('ed-tg').addEventListener('change', (e) => mut(() => { n.grants.tags = csv(e.target.value); }));
+        document.getElementById('ed-ap-btn').addEventListener('click', () => {
+          const pid = document.getElementById('ed-ap-sel').value;
+          if (!pid || wouldCreateCycle(pid, n.id)) return;
+          mut(() => state.data.edges.push({ id: `edge_${pid}__${n.id}_${Date.now()}`, from: pid, to: n.id }), true);
+          showToast('Added parent link');
+        });
+        inspectorContent.querySelectorAll('[data-up]').forEach((b) => b.addEventListener('click', () => mut(() => { state.data.edges = state.data.edges.filter((e) => !(e.from === b.dataset.up && e.to === n.id)); }, true)));
+        inspectorContent.querySelectorAll('[data-uc]').forEach((b) => b.addEventListener('click', () => mut(() => { state.data.edges = state.data.edges.filter((e) => !(e.from === n.id && e.to === b.dataset.uc)); }, true)));
+      }
+
+      function autoLayoutRadial() {
+        pushUndo();
+        const groups = new Map(ALL_ROLES_ORDER.map((r) => [r, [[],[],[],[],[]]]));
+        for (const n of state.data.nodes) (groups.get(n.role) || groups.get('hybrid'))[Math.max(0, Math.min(4, Number(n.tier)||0))].push(n);
+        const baseA = { combat: -90, devotion: -18, magic: 54, social: 126, exploring: 198 };
+        const seamA = { 'combat+devotion': -54, 'devotion+magic': 18, 'magic+social': 90, 'exploring+social': 162, 'combat+exploring': -126 };
+        for (const [rid, tiers] of groups.entries()) {
+          if (rid === 'hybrid') continue;
+          tiers.forEach((list, t) => {
+            if (!list.length) return;
+            const span = Math.min(48, Math.max(10, (list.length - 1) * 9.5));
+            list.forEach((n, i) => {
+              const off = list.length === 1 ? 0 : -span / 2 + (i / (list.length - 1)) * span;
+              const rad = ((baseA[rid] + off) * Math.PI) / 180;
+              n.x = Math.round(Math.cos(rad) * TIER_RADII[t]);
+              n.y = Math.round(Math.sin(rad) * TIER_RADII[t]);
+            });
+          });
+        }
+        state.data.nodes.filter((n) => n.role === 'hybrid').forEach((n, i) => {
+          const s = seamA[(n.secondaryRoles || []).slice(0, 2).sort().join('+')];
+          const r = s !== undefined ? Math.max(600, TIER_RADII[n.tier] - 40) : 95 + (i % 3) * 45;
+          const rad = ((s !== undefined ? s : i * 120) * Math.PI) / 180;
+          n.x = Math.round(Math.cos(rad) * r); n.y = Math.round(Math.sin(rad) * r);
+        });
+        for (let k = 0; k < 100; k++) {
+          let mv = false;
+          for (let i = 0; i < state.data.nodes.length; i++) {
+            for (let j = i + 1; j < state.data.nodes.length; j++) {
+              const a = state.data.nodes[i], b = state.data.nodes[j];
+              const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.1;
+              if (d < 132) {
+                const p = (132 - d) * 0.5;
+                if (a.category !== 'root') { a.x -= (dx / d) * p; a.y -= (dy / d) * p; }
+                if (b.category !== 'root') { b.x += (dx / d) * p; b.y += (dy / d) * p; }
+                mv = true;
+              }
+            }
+          }
+          if (!mv) break;
+        }
+        for (const n of state.data.nodes) { n.x = Math.round(n.x); n.y = Math.round(n.y); }
+        saveTree(); renderAll(); fitToNodes(); showToast('Radial layout updated');
+      }
+
+      function resetDefaultTree() {
+        pushUndo();
+        state.data = deepClone(window.FIVEFOLD_DEFAULT_TREE);
+        state.selectedNodeId = 'combat_root';
+        pruneInvalidBuildNodes(); saveTree(); renderAll(); fitToNodes();
+        showToast('Restored default Fivefold 5e skill web');
+      }
+
+      function setMode(mode) {
+        state.mode = mode;
+        if (mode !== 'edit') { state.linkMode = false; state.linkSourceId = null; svg.classList.remove('linking'); setStatus(''); }
+        document.querySelectorAll('.mode-btn').forEach((b) => {
+          const act = b.dataset.mode === mode;
+          b.className = `mode-btn px-3 py-1 rounded-md text-xs font-semibold cursor-pointer transition ${act ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm' : 'text-[var(--muted-foreground)]'}`;
+          b.setAttribute('aria-selected', String(act));
+        });
+        editCanvasToolsEl.classList.toggle('hidden', mode !== 'edit');
+        editCanvasToolsEl.classList.toggle('flex', mode === 'edit');
+        renderAll();
+      }
+
+      function downloadText(name, content, mime = 'application/json') {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('visible'), 2500);
+      }
+
+      function renderSearch() {
+        const q = state.searchQuery.trim();
+        searchClear.classList.toggle('hidden', !q);
+        if (!q) { searchResults.classList.add('hidden'); return; }
+        const hits = state.data.nodes.filter(isNodeMatching).slice(0, 12);
+        searchResults.innerHTML = hits.length
+          ? hits.map((n) => `<button data-pick="${n.id}" class="w-full text-left px-2.5 py-2 flex items-center justify-between gap-2 hover:bg-[var(--secondary)] border-b border-[var(--border)] last:border-b-0 cursor-pointer text-xs">
+              <span class="flex items-center gap-1.5 font-semibold"><span class="w-2 h-2 rounded-full" style="background:${getRoleInfo(n.role).color}"></span>${esc(n.name)}</span>
+              <span class="font-mono text-[var(--muted-foreground)]">T${n.tier} · ${n.cost}SP</span>
+            </button>`).join('')
+          : `<div class="p-2.5 text-xs text-[var(--muted-foreground)]">No matches</div>`;
+        searchResults.classList.remove('hidden');
+        searchResults.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => {
+          state.selectedNodeId = b.dataset.pick;
+          searchResults.classList.add('hidden');
+          panToNode(state.selectedNodeId, 1.55);
+          renderAll();
+        }));
+      }
+
+      function renderAll() { renderRolePills(); renderCanvas(); renderInspector(); updateUndoButtons(); }
+
+      // Event wiring
+      document.querySelectorAll('.mode-btn').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+      buildSubtabs.querySelectorAll('.sub-tab').forEach((b) => b.addEventListener('click', () => { state.buildSubTab = b.dataset.btab; renderInspector(); }));
+      document.getElementById('filter-category').addEventListener('change', (e) => { state.filterCategory = e.target.value; renderCanvas(); });
+      document.getElementById('filter-tier').addEventListener('change', (e) => { state.filterTier = e.target.value; renderCanvas(); });
+      searchInput.addEventListener('input', (e) => { state.searchQuery = e.target.value; renderCanvas(); renderSearch(); });
+      searchClear.addEventListener('click', () => { state.searchQuery = ''; searchInput.value = ''; renderCanvas(); renderSearch(); });
+      document.addEventListener('click', (e) => { if (!e.target.closest('.search-wrap')) searchResults.classList.add('hidden'); });
+      document.getElementById('btn-zoom-in').addEventListener('click', () => zoomBy(1.25));
+      document.getElementById('btn-zoom-out').addEventListener('click', () => zoomBy(0.8));
+      document.getElementById('btn-fit').addEventListener('click', () => fitToNodes());
+      document.getElementById('btn-rings').addEventListener('click', (e) => {
+        state.showRings = !state.showRings;
+        e.currentTarget.className = state.showRings
+          ? 'h-7 px-2.5 rounded border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-medium cursor-pointer'
+          : 'h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer';
+        renderGuides();
+      });
+      document.getElementById('btn-add-node').addEventListener('click', () => createNewNode({ parentId: getNode(state.selectedNodeId)?.id || null }));
+      document.getElementById('btn-link-mode').addEventListener('click', (e) => {
+        state.linkMode = !state.linkMode; state.linkSourceId = null;
+        svg.classList.toggle('linking', state.linkMode);
+        e.currentTarget.className = state.linkMode
+          ? 'h-7 px-2.5 rounded border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold cursor-pointer'
+          : 'h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer';
+        setStatus(state.linkMode ? 'Link Mode: click parent node, then child node' : '');
+        renderCanvas();
+      });
+      document.getElementById('hud-status-cancel').addEventListener('click', () => {
+        state.linkMode = false; state.linkSourceId = null; svg.classList.remove('linking'); setStatus('');
+        document.getElementById('btn-link-mode').className = 'h-7 px-2.5 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-medium cursor-pointer';
+        renderCanvas();
+      });
+      document.getElementById('btn-auto-layout').addEventListener('click', autoLayoutRadial);
+      document.getElementById('btn-undo').addEventListener('click', performUndo);
+      document.getElementById('btn-redo').addEventListener('click', performRedo);
+      document.getElementById('btn-export').addEventListener('click', () => { downloadText('fivefold5e-skill-tree.json', JSON.stringify(state.data, null, 2)); showToast('Exported JSON'); });
+      const fi = document.getElementById('file-import');
+      document.getElementById('btn-import').addEventListener('click', () => fi.click());
+      fi.addEventListener('change', (e) => {
+        const f = e.target.files?.[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            const p = JSON.parse(String(r.result));
+            if (!Array.isArray(p.nodes) || !Array.isArray(p.edges)) throw new Error('Invalid tree JSON');
+            pushUndo(); state.data = { ...deepClone(window.FIVEFOLD_DEFAULT_TREE), ...p };
+            state.selectedNodeId = state.data.nodes[0]?.id || null;
+            pruneInvalidBuildNodes(); saveTree(); renderAll(); fitToNodes();
+            showToast(`Imported ${state.data.nodes.length} nodes`);
+          } catch (err) { showToast(`Import failed: ${err.message}`); }
+          fi.value = '';
+        };
+        r.readAsText(f);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? performRedo() : performUndo(); }
+        else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); performRedo(); }
+      });
+      window.addEventListener('themechange', renderCanvas);
+
+      renderAll();
+      fitToNodes();
+    })();
+  </script>
+</body>
+</html>

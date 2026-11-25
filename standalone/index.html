@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fivefold 5e — Role-Rooted RPG Skill Web Studio</title>
+  <meta name="description" content="Interactive D&D 5e role-rooted skill web visualizer, graph editor, and character builder across Combat, Devotion, Magic, Social, Exploring, and Hybrid branches." />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Studio Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-crest" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <polygon points="12,2 21.5,8.9 17.9,20 6.1,20 2.5,8.9" stroke="currentColor" stroke-width="1.8" fill="none" />
+            <circle cx="12" cy="2.5" r="2.1" fill="#c93b2b" />
+            <circle cx="21" cy="9.2" r="2.1" fill="#c78212" />
+            <circle cx="17.6" cy="19.6" r="2.1" fill="#2b5cc7" />
+            <circle cx="6.4" cy="19.6" r="2.1" fill="#0d8299" />
+            <circle cx="3" cy="9.2" r="2.1" fill="#1b8a5a" />
+          </svg>
+        </div>
+        <h1>Fivefold 5e</h1>
+        <span id="tree-counts" class="brand-meta">115 nodes · 153 links</span>
+      </div>
+
+      <nav class="mode-switcher" role="tablist" aria-label="Studio Mode">
+        <button id="mode-inspect" class="mode-btn active" role="tab" aria-selected="true" data-mode="inspect">Inspect</button>
+        <button id="mode-build" class="mode-btn" role="tab" aria-selected="false" data-mode="build">Build Character</button>
+        <button id="mode-edit" class="mode-btn" role="tab" aria-selected="false" data-mode="edit">Edit Web</button>
+      </nav>
+
+      <div class="topbar-controls">
+        <div class="search-wrap">
+          <input id="search-input" class="search-input" type="text" placeholder="Search nodes, 5e class, skill..." autocomplete="off" />
+          <button id="search-clear" class="search-clear" title="Clear search" aria-label="Clear search">&times;</button>
+          <div id="search-results" class="search-results" role="listbox"></div>
+        </div>
+        <button id="btn-import" class="btn" title="Import Skill Web JSON">Import</button>
+        <input id="file-import" type="file" accept=".json,application/json" style="display:none" />
+        <button id="btn-export" class="btn" title="Export Skill Web JSON">Export</button>
+        <button id="btn-theme" class="btn" title="Toggle Light / Dark Theme">Dark</button>
+      </div>
+    </header>
+
+    <!-- Workspace -->
+    <main class="workspace">
+      <!-- Interactive SVG Canvas -->
+      <section class="canvas-pane" aria-label="Skill Web Canvas">
+        <!-- Floating Top HUD: Role Focus & Filters -->
+        <div class="canvas-hud-top">
+          <div id="role-pills" class="hud-group" role="group" aria-label="Focus Role"></div>
+
+          <div class="hud-group">
+            <select id="filter-category" class="hud-select" aria-label="Filter by Category">
+              <option value="all">All Categories</option>
+              <option value="root">Role Root</option>
+              <option value="class_feature">Class Feature</option>
+              <option value="subclass_feature">Subclass Feature</option>
+              <option value="feat">Feat</option>
+              <option value="spellcasting">Spellcasting</option>
+              <option value="hit_die">Hit Die</option>
+              <option value="save">Saving Throw</option>
+              <option value="skill">Skill</option>
+              <option value="proficiency">Proficiency</option>
+            </select>
+            <select id="filter-tier" class="hud-select" aria-label="Filter by Tier">
+              <option value="all">All Tiers</option>
+              <option value="0">Tier 0 (Root)</option>
+              <option value="1">Tier I (Lv 1+)</option>
+              <option value="2">Tier II (Lv 5+)</option>
+              <option value="3">Tier III (Lv 11+)</option>
+              <option value="4">Tier IV (Lv 17+)</option>
+            </select>
+          </div>
+        </div>
+
+        <svg id="tree-svg" viewBox="-1650 -1600 3300 3200">
+          <defs>
+            <marker id="arrow-default" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="var(--edge-default)"></path>
+            </marker>
+            <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M 1 1.5 L 8.5 5 L 1 8.5 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+          <g id="viewport-group">
+            <g id="guides-layer"></g>
+            <g id="edges-layer"></g>
+            <g id="temp-link-layer"></g>
+            <g id="nodes-layer"></g>
+          </g>
+        </svg>
+
+        <!-- Floating Bottom HUD -->
+        <div class="canvas-hud-bottom">
+          <div class="hud-group">
+            <button id="btn-zoom-out" class="btn btn-sm" title="Zoom Out">&minus;</button>
+            <span id="zoom-readout" class="zoom-label">100%</span>
+            <button id="btn-zoom-in" class="btn btn-sm" title="Zoom In">+</button>
+            <button id="btn-fit" class="btn btn-sm" title="Fit Entire Skill Web">Fit</button>
+            <button id="btn-rings" class="btn btn-sm btn-active" title="Toggle Tier Rings">Rings</button>
+          </div>
+
+          <div id="edit-canvas-tools" class="hud-group" style="display:none;">
+            <button id="btn-add-node" class="btn btn-sm btn-primary">+ Node</button>
+            <button id="btn-link-mode" class="btn btn-sm" title="Click Parent then Child to connect">Link Edge</button>
+            <button id="btn-auto-layout" class="btn btn-sm" title="Arrange cleanly in radial tiers">Auto-Layout</button>
+            <button id="btn-undo" class="btn btn-sm" disabled title="Undo (Ctrl+Z)">Undo</button>
+            <button id="btn-redo" class="btn btn-sm" disabled title="Redo (Ctrl+Y)">Redo</button>
+          </div>
+
+          <div id="hud-status" class="hud-status-banner">
+            <span id="hud-status-text"></span>
+            <button id="hud-status-cancel" class="btn btn-sm">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Studio Drawer -->
+      <aside class="inspector-pane" aria-label="Inspector and Builder Drawer">
+        <div id="build-subtabs" class="sub-tabs" style="display:none;">
+          <button class="sub-tab active" data-btab="sheet">Character Sheet</button>
+          <button class="sub-tab" data-btab="node">Selected Node</button>
+        </div>
+        <div id="inspector-content" class="inspector-scroll"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./src/defaultTree.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

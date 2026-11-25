@@ -1,0 +1,3923 @@
+{
+  "meta": {
+    "name": "Fivefold 5e — Role-Rooted Skill Web",
+    "version": "1.0.0",
+    "startingPoints": 6,
+    "pointsPerLevel": 3,
+    "baseHitDie": 6,
+    "tierMinLevels": {
+      "0": 1,
+      "1": 1,
+      "2": 5,
+      "3": 11,
+      "4": 17
+    },
+    "tierNames": {
+      "0": "Tier 0 — Role Roots",
+      "1": "Tier I — Local Heroes (Lv 1–4)",
+      "2": "Tier II — Heroes of the Realm (Lv 5–10)",
+      "3": "Tier III — Masters of the Realm (Lv 11–16)",
+      "4": "Tier IV — Masters of the World (Lv 17–20)"
+    }
+  },
+  "roles": {
+    "combat": {
+      "id": "combat",
+      "name": "Combat",
+      "angle": -90,
+      "color": "#c93b2b",
+      "softBg": "rgba(201, 59, 43, 0.14)",
+      "tagline": "Martial prowess, steel, endurance, and battlefield dominance."
+    },
+    "devotion": {
+      "id": "devotion",
+      "name": "Devotion",
+      "angle": -18,
+      "color": "#c78212",
+      "softBg": "rgba(199, 130, 18, 0.14)",
+      "tagline": "Sacred vows, divine channeling, healing, and protective auras."
+    },
+    "magic": {
+      "id": "magic",
+      "name": "Magic",
+      "angle": 54,
+      "color": "#2b5cc7",
+      "softBg": "rgba(43, 92, 199, 0.14)",
+      "tagline": "Arcane weave, spellcraft, metamagic, and eldritch pacts."
+    },
+    "social": {
+      "id": "social",
+      "name": "Social",
+      "angle": 126,
+      "color": "#0d8299",
+      "softBg": "rgba(13, 130, 153, 0.14)",
+      "tagline": "Persuasion, bardic inspiration, intrigue, and commanding presence."
+    },
+    "exploring": {
+      "id": "exploring",
+      "name": "Exploring",
+      "angle": 198,
+      "color": "#1b8a5a",
+      "softBg": "rgba(27, 138, 90, 0.14)",
+      "tagline": "Scouting, stealth, wilderness mastery, and unmatched agility."
+    },
+    "hybrid": {
+      "id": "hybrid",
+      "name": "Hybrid",
+      "angle": 0,
+      "color": "#8f6339",
+      "softBg": "rgba(143, 99, 57, 0.16)",
+      "tagline": "Cross-role disciplines forged by uniting two or more roots."
+    }
+  },
+  "categories": {
+    "root": {
+      "id": "root",
+      "label": "Role Root",
+      "shape": "octagon"
+    },
+    "class_feature": {
+      "id": "class_feature",
+      "label": "Class Feature",
+      "shape": "hex"
+    },
+    "subclass_feature": {
+      "id": "subclass_feature",
+      "label": "Subclass Feature",
+      "shape": "crest"
+    },
+    "feat": {
+      "id": "feat",
+      "label": "Feat",
+      "shape": "diamond"
+    },
+    "spellcasting": {
+      "id": "spellcasting",
+      "label": "Spellcasting",
+      "shape": "halo"
+    },
+    "hit_die": {
+      "id": "hit_die",
+      "label": "Hit Die",
+      "shape": "shield"
+    },
+    "save": {
+      "id": "save",
+      "label": "Saving Throw",
+      "shape": "badge"
+    },
+    "skill": {
+      "id": "skill",
+      "label": "Skill",
+      "shape": "circle"
+    },
+    "proficiency": {
+      "id": "proficiency",
+      "label": "Proficiency",
+      "shape": "square"
+    }
+  },
+  "nodes": [
+    {
+      "id": "combat_root",
+      "name": "Combat",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "root",
+      "tier": 0,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 0,
+      "y": -260,
+      "source5e": "Core Role Root",
+      "summary": "Mastery of weapons, armor, endurance, and direct battlefield force.",
+      "mechanics": "Unlocks the Combat branch. Grants proficiency with Simple Weapons and +1 to Initiative rolls.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Simple Weapons"
+        ],
+        "spellTier": 0,
+        "tags": [
+          "Martial Root"
+        ]
+      }
+    },
+    {
+      "id": "combat_skill_athletics",
+      "name": "Athletics",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -161,
+      "y": -382,
+      "source5e": "Core Skill (STR)",
+      "summary": "Proficiency in climbing, jumping, swimming, grappling, and shoving.",
+      "mechanics": "Gain proficiency in the Athletics skill. Advantage on checks to maintain a grapple once per short rest.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Athletics"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_save_str",
+      "name": "Strength Save",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -96,
+      "y": -497,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Resist forced movement, restraints, and raw physical force.",
+      "mechanics": "Gain proficiency in Strength saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "STR"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_prof_weapons_martial",
+      "name": "Martial Arms",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 3,
+      "y": -408,
+      "source5e": "Fighter / Barbarian / Paladin",
+      "summary": "Training with all martial melee and ranged weaponry.",
+      "mechanics": "Gain proficiency with all Martial Weapons.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Martial Weapons"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_hd_d8",
+      "name": "Soldier’s Grit (d8)",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "hit_die",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 104,
+      "y": -494,
+      "source5e": "Hit Die Upgrade",
+      "summary": "Upgrade your base Hit Die from d6 to d8.",
+      "mechanics": "Your Hit Die becomes at least d8 (retroactively increasing max HP by +1 per character level).",
+      "grants": {
+        "hitDie": 8,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_prof_armor_med",
+      "name": "Battlefield Armor",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 182,
+      "y": -385,
+      "source5e": "Fighter / Paladin / Barbarian",
+      "summary": "Wear Light Armor, Medium Armor, and wield Shields.",
+      "mechanics": "Gain proficiency with Light Armor, Medium Armor, and Shields.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Light Armor",
+          "Medium Armor",
+          "Shields"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_rage",
+      "name": "Rage",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -209,
+      "y": -574,
+      "source5e": "Barbarian 1",
+      "summary": "Channel primal fury for bonus melee damage and damage resistance.",
+      "mechanics": "Bonus action: enter Rage (2/LR, scaling with Tier). Gain advantage on STR checks/saves, +2 melee STR damage (+3 at T2, +4 at T3), and resistance to bludgeoning, piercing, and slashing damage. Cannot cast/concentrate on spells.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Rage"
+        ]
+      }
+    },
+    {
+      "id": "combat_fighting_style",
+      "name": "Fighting Style",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -42,
+      "y": -618,
+      "source5e": "Fighter 1 / Paladin 2 / Ranger 2",
+      "summary": "Adopt a signature martial discipline.",
+      "mechanics": "Choose one Fighting Style: Archery (+2 ranged attack), Defense (+1 AC in armor), Dueling (+2 one-handed damage), Great Weapon Fighting, Protection, or Two-Weapon Fighting.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Fighting Style"
+        ]
+      }
+    },
+    {
+      "id": "combat_second_wind",
+      "name": "Second Wind",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 90,
+      "y": -631,
+      "source5e": "Fighter 1",
+      "summary": "Draw on stamina to recover HP mid-fight.",
+      "mechanics": "Bonus action: regain 1d10 + character level HP. Recharges on a short or long rest.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Self-Sustain"
+        ]
+      }
+    },
+    {
+      "id": "combat_save_con",
+      "name": "Constitution Save",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 209,
+      "y": -574,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Shrug off poison, frost, exhaustion, and concentration breaks.",
+      "mechanics": "Gain proficiency in Constitution saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "CON"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_reckless_attack",
+      "name": "Reckless Attack",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -334,
+      "y": -754,
+      "source5e": "Barbarian 2",
+      "summary": "Trade defense for devastating melee advantage plus Danger Sense.",
+      "mechanics": "Gain advantage on melee STR attacks this turn (attacks against you have advantage until next turn). Also gain advantage on DEX saves against effects you can see.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Fury"
+        ]
+      }
+    },
+    {
+      "id": "combat_improved_crit",
+      "name": "Improved Critical",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -196,
+      "y": -786,
+      "source5e": "Champion Fighter 3",
+      "summary": "Score critical hits on natural 19 or 20.",
+      "mechanics": "Your weapon attacks score a critical hit on a roll of 19 or 20. Also add half proficiency bonus to non-proficient STR/DEX/CON checks.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Crit 19-20"
+        ]
+      }
+    },
+    {
+      "id": "combat_extra_attack",
+      "name": "Extra Attack",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -58,
+      "y": -828,
+      "source5e": "Fighter / Barbarian / Paladin / Ranger / Monk 5",
+      "summary": "Attack twice whenever you take the Attack action.",
+      "mechanics": "You can attack twice, instead of once, whenever you take the Attack action on your turn.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "2 Attacks"
+        ]
+      }
+    },
+    {
+      "id": "combat_maneuvers",
+      "name": "Combat Superiority",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 80,
+      "y": -811,
+      "source5e": "Battle Master Fighter 3",
+      "summary": "Four d8 Superiority Dice and three tactical combat maneuvers.",
+      "mechanics": "Learn 3 Battle Master maneuvers (e.g., Trip Attack, Riposte, Precision Attack, Menacing Attack) and gain 4d8 Superiority Dice (short rest recharge).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Maneuvers"
+        ]
+      }
+    },
+    {
+      "id": "combat_action_surge",
+      "name": "Action Surge",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 212,
+      "y": -812,
+      "source5e": "Fighter 2",
+      "summary": "Push beyond normal limits for an extra action.",
+      "mechanics": "On your turn, take one additional action. Once per short or long rest (twice at Tier IV).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Action Economy"
+        ]
+      }
+    },
+    {
+      "id": "combat_hd_d10",
+      "name": "Martial Vigor (d10)",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "hit_die",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 326,
+      "y": -745,
+      "source5e": "Hit Die Upgrade",
+      "summary": "Upgrade your Hit Die to d10.",
+      "mechanics": "Your Hit Die becomes at least d10 (retroactively increasing max HP by +1 per level over d8).",
+      "grants": {
+        "hitDie": 10,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_prof_armor_heavy",
+      "name": "Heavy Plate",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 341,
+      "y": -572,
+      "source5e": "Fighter / Paladin / Heavy Armor",
+      "summary": "Don Heavy Armor and absorb incoming blows.",
+      "mechanics": "Gain proficiency with Heavy Armor. While wearing heavy armor, nonmagical B/P/S damage is reduced by 2.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Heavy Armor"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_feat_gwm",
+      "name": "Power Strike Mastery",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -189,
+      "y": -972,
+      "source5e": "Feat: Great Weapon Master / Sharpshooter",
+      "summary": "Trade -5 accuracy for +10 weapon damage.",
+      "mechanics": "Choose Heavy Melee (GWM: bonus attack on crit/kill, -5/+10) or Ranged (Sharpshooter: ignore cover/long range, -5/+10).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Martial Feat"
+        ]
+      }
+    },
+    {
+      "id": "combat_feat_sentinel",
+      "name": "Sentinel",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 451,
+      "y": -848,
+      "source5e": "Feat: Sentinel",
+      "summary": "Lock down foes and punish attacks against allies.",
+      "mechanics": "Opportunity attacks reduce target speed to 0; provoke even on Disengage; reaction melee attack when a creature within 5 ft attacks an ally.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Tank Feat"
+        ]
+      }
+    },
+    {
+      "id": "combat_brutal_critical",
+      "name": "Brutal Critical",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -385,
+      "y": -1057,
+      "source5e": "Barbarian 9 / 13",
+      "summary": "Roll extra weapon damage dice on critical hits.",
+      "mechanics": "Roll two additional weapon damage dice when determining extra damage for a critical hit with a melee attack. Gain Relentless Rage.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Crit Scaling"
+        ]
+      }
+    },
+    {
+      "id": "combat_indomitable",
+      "name": "Indomitable",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 234,
+      "y": -1100,
+      "source5e": "Fighter 9",
+      "summary": "Reroll a failed saving throw through sheer willpower.",
+      "mechanics": "Reroll a failed saving throw (2/LR). You must use the new roll.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Save Reroll"
+        ]
+      }
+    },
+    {
+      "id": "combat_hd_d12",
+      "name": "Juggernaut Vitality (d12)",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "hit_die",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 438,
+      "y": -1031,
+      "source5e": "Barbarian Hit Die Upgrade",
+      "summary": "Upgrade your Hit Die to the maximum d12.",
+      "mechanics": "Your Hit Die becomes d12 (retroactively increasing max HP by +1 per level over d10).",
+      "grants": {
+        "hitDie": 12,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "combat_three_attacks",
+      "name": "Apex Blade (3 Attacks)",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": -47,
+      "y": -1339,
+      "source5e": "Fighter 11 / 20",
+      "summary": "Unleash three weapon strikes with every Attack action.",
+      "mechanics": "You can attack three times whenever you take the Attack action. Your Superiority Dice become d10s if you possess Combat Superiority.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "3 Attacks",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "combat_capstone_titan",
+      "name": "Primal Champion",
+      "role": "combat",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": -372,
+      "y": -1298,
+      "source5e": "Barbarian 20",
+      "summary": "Transcend mortal limits with +4 STR and +4 CON.",
+      "mechanics": "Your Strength and Constitution scores increase by 4, and your maximum for those scores is now 24.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "+4 STR/CON",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "devotion_root",
+      "name": "Devotion",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "root",
+      "tier": 0,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 247,
+      "y": -80,
+      "source5e": "Core Role Root",
+      "summary": "Sacred vows, divine channeling, restoration, and radiant protection.",
+      "mechanics": "Unlocks the Devotion branch. Grants proficiency with a Holy Symbol focus and the Guidance or Spare the Dying cantrip.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Holy Symbol"
+        ],
+        "spellTier": 0,
+        "tags": [
+          "Divine Root"
+        ]
+      }
+    },
+    {
+      "id": "devotion_prof_armor_shield",
+      "name": "Templar Vestments",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 326,
+      "y": -295,
+      "source5e": "Cleric / Paladin",
+      "summary": "Armor and shield proficiency consecrated for sacred service.",
+      "mechanics": "Gain proficiency with Light Armor, Medium Armor, and Shields. You may emblazon your shield as a Holy Symbol.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Light Armor",
+          "Medium Armor",
+          "Shields"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_skill_religion",
+      "name": "Religion",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 445,
+      "y": -235,
+      "source5e": "Core Skill (INT)",
+      "summary": "Lore of deities, rites, planes, and sacred orders.",
+      "mechanics": "Gain proficiency in the Religion skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Religion"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_hd_d8",
+      "name": "Tempered Vessel (d8)",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "hit_die",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 380,
+      "y": -120,
+      "source5e": "Cleric Hit Die Upgrade",
+      "summary": "Fortify your body through devotion, upgrading Hit Die to d8.",
+      "mechanics": "Your Hit Die becomes at least d8.",
+      "grants": {
+        "hitDie": 8,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_skill_medicine",
+      "name": "Medicine",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 507,
+      "y": -67,
+      "source5e": "Core Skill (WIS)",
+      "summary": "Stabilize the dying, diagnose afflictions, and tend wounds.",
+      "mechanics": "Gain proficiency in the Medicine skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Medicine"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_save_wis",
+      "name": "Wisdom Save",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 427,
+      "y": 40,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Steadfast mind against charm, fear, and domination.",
+      "mechanics": "Gain proficiency in Wisdom saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "WIS"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_skill_insight",
+      "name": "Insight",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 609,
+      "y": 86,
+      "source5e": "Core Skill (WIS)",
+      "summary": "Discern true intent, falsehoods, and hidden motives.",
+      "mechanics": "Gain proficiency in the Insight skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Insight"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "devotion_channel_divinity",
+      "name": "Channel Divinity",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 550,
+      "y": -317,
+      "source5e": "Cleric 2 / Paladin 3",
+      "summary": "Invoke divine energy to Turn Undead or fuel domain/oath powers.",
+      "mechanics": "Gain Channel Divinity (1/SR, 2/SR at Tier II). Includes Turn Undead (WIS save, 30 ft) and unlocks Domain/Oath channel options.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Channel Divinity"
+        ]
+      }
+    },
+    {
+      "id": "devotion_divine_sense",
+      "name": "Divine Sense & Health",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 602,
+      "y": -184,
+      "source5e": "Paladin 1 & 3",
+      "summary": "Detect celestials, fiends, and undead; immune to disease.",
+      "mechanics": "Detect celestials/fiends/undead within 60 ft (1 + CHA mod/LR). You are immune to disease.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Disease Immune"
+        ]
+      }
+    },
+    {
+      "id": "devotion_lay_on_hands",
+      "name": "Lay on Hands",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 639,
+      "y": -56,
+      "source5e": "Paladin 1",
+      "summary": "A touch-healing pool of 5 × character level HP.",
+      "mechanics": "Healing pool equal to 5 × character level (long rest). Spend HP to heal by touch, or spend 5 HP to cure one disease or neutralize one poison.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Healing Pool"
+        ]
+      }
+    },
+    {
+      "id": "devotion_warding_flare",
+      "name": "Warding Flare",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 676,
+      "y": -491,
+      "source5e": "Light Domain Cleric 1 & 2",
+      "summary": "Blind attackers with radiant light and unleash Radiance of the Dawn.",
+      "mechanics": "Reaction (WIS mod/LR): impose disadvantage on an attacker within 30 ft. Channel Divinity: dispel darkness and deal 2d10 + level radiant damage in 30 ft (CON half).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Radiant"
+        ]
+      }
+    },
+    {
+      "id": "devotion_aura_protection",
+      "name": "Aura of Protection",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 783,
+      "y": -317,
+      "source5e": "Paladin 6",
+      "summary": "Add your CHA or WIS modifier to all saving throws for you and nearby allies.",
+      "mechanics": "While conscious, you and friendly creatures within 10 ft (30 ft at Tier IV) gain a bonus to all saving throws equal to your CHA or WIS modifier (min +1).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Save Aura"
+        ]
+      }
+    },
+    {
+      "id": "devotion_disciple_life",
+      "name": "Disciple of Life",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 827,
+      "y": -116,
+      "source5e": "Life Domain Cleric 1 & 2",
+      "summary": "Supercharge healing spells and Channel Divinity Preserve Life.",
+      "mechanics": "Healing spells restore an extra 2 + spell level HP. Channel Divinity: restore up to 5 × level HP divided among creatures within 30 ft (up to half max HP).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Master Healer"
+        ]
+      }
+    },
+    {
+      "id": "devotion_feat_healer_resilient",
+      "name": "Sanctuary of Will",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 823,
+      "y": 58,
+      "source5e": "Feat: Healer / Resilient Spirit",
+      "summary": "Advantage on death saves and emergency field triage.",
+      "mechanics": "Use a Healer’s Kit as an action to restore 1d6 + 4 + target HD HP (1/SR per creature). Gain advantage on death saving throws and +1 WIS or CHA.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Support Feat"
+        ]
+      }
+    },
+    {
+      "id": "devotion_destroy_undead",
+      "name": "Destroy Undead",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 920,
+      "y": -621,
+      "source5e": "Cleric 8 / 11",
+      "summary": "Annihilate low-CR undead outright and add radiant power to strikes/cantrips.",
+      "mechanics": "Undead of CR 2 or lower (CR 4 at Tier IV) failing Turn Undead are instantly destroyed. Once per turn, add +1d8 radiant damage to a weapon hit or cantrip.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Anti-Undead"
+        ]
+      }
+    },
+    {
+      "id": "devotion_aura_warding",
+      "name": "Aura of Warding",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 1071,
+      "y": -327,
+      "source5e": "Oath of the Ancients 7 / Cleansing Touch 14",
+      "summary": "Grant resistance to all spell damage inside your aura.",
+      "mechanics": "You and friendly creatures within your Aura of Protection have resistance to damage from spells. Action: end one spell on yourself or a willing touched creature (CHA/WIS mod/LR).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Spell Resist Aura"
+        ]
+      }
+    },
+    {
+      "id": "devotion_divine_intervention",
+      "name": "Divine Intervention",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": 1165,
+      "y": -672,
+      "source5e": "Cleric 10 / 20",
+      "summary": "Call directly upon your deity to reshape reality.",
+      "mechanics": "Implore your deity for aid (automatic success at Level 20, or roll ≤ character level on d100). Replicates any Cleric spell or miracle of equal potency.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Miracle",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "devotion_capstone_avatar",
+      "name": "Supreme Radiance",
+      "role": "devotion",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": 1325,
+      "y": -234,
+      "source5e": "Life Cleric 17 / Devotion Paladin 20",
+      "summary": "Maximize all healing dice and radiate a 30-ft Holy Nimbus.",
+      "mechanics": "Maximize all dice rolled to restore HP with spells. Once per long rest, emanate sunlight for 1 minute dealing 10 radiant damage to enemies starting their turn within 30 ft.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Max Healing",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "magic_root",
+      "name": "Magic",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "root",
+      "tier": 0,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 153,
+      "y": 210,
+      "source5e": "Core Role Root",
+      "summary": "Shape the arcane weave, command cantrips, and unlock spell slots.",
+      "mechanics": "Unlocks the Magic branch. Choose INT, WIS, or CHA as your primary spellcasting ability. Learn 2 cantrips and gain Arcane Focus proficiency.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Arcane Focus"
+        ],
+        "spellTier": 0,
+        "tags": [
+          "Arcane Root",
+          "2 Cantrips"
+        ]
+      }
+    },
+    {
+      "id": "magic_save_int",
+      "name": "Intelligence Save",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 385,
+      "y": 213,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Defend your mind against psionics, illusions, and feeblemind.",
+      "mechanics": "Gain proficiency in Intelligence saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "INT"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "magic_skill_arcana",
+      "name": "Arcana",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 368,
+      "y": 344,
+      "source5e": "Core Skill (INT)",
+      "summary": "Knowledge of spells, magic items, eldritch symbols, and planes.",
+      "mechanics": "Gain proficiency in the Arcana skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Arcana"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "magic_spell_t1",
+      "name": "Spellcasting I",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "spellcasting",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 236,
+      "y": 336,
+      "source5e": "5e Tier I Spellcasting (Lv 1–4)",
+      "summary": "Unlock 1st- and 2nd-level spell slots (up to 4/3 slots).",
+      "mechanics": "Gain 1st-level spell slots (and 2nd-level at Lv 3), +1 cantrip, and prepare/know spells equal to casting mod + proficiency bonus.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 1,
+        "tags": [
+          "1st–2nd Slots"
+        ]
+      }
+    },
+    {
+      "id": "magic_skill_history",
+      "name": "History",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 209,
+      "y": 465,
+      "source5e": "Core Skill (INT)",
+      "summary": "Recall ancient empires, legendary artifacts, and lost lineages.",
+      "mechanics": "Gain proficiency in the History skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "History"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "magic_prof_arcane_tools",
+      "name": "Arcane Craft",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 83,
+      "y": 418,
+      "source5e": "Artisan Tools & Scroll Scribing",
+      "summary": "Brew potions and scribe spell scrolls.",
+      "mechanics": "Gain proficiency with Alchemist’s Supplies and Calligrapher’s Supplies. Halve time and gold cost to scribe scrolls.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Alchemist's Supplies",
+          "Calligrapher's Supplies"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "magic_ritual_casting",
+      "name": "Ritual Casting",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 529,
+      "y": 351,
+      "source5e": "Wizard / Ritual Caster",
+      "summary": "Cast ritual spells without expending spell slots.",
+      "mechanics": "Maintain a ritual grimoire. Cast any spell you know with the ritual tag by adding 10 minutes without spending a slot.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Rituals"
+        ]
+      }
+    },
+    {
+      "id": "magic_arcane_recovery",
+      "name": "Arcane Recovery",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": 453,
+      "y": 460,
+      "source5e": "Wizard 1",
+      "summary": "Recover expended spell slots during a short rest.",
+      "mechanics": "Once per day on a short rest, recover spell slots with combined levels ≤ ceil(character level / 2) (none 6th or higher).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Slot Recovery"
+        ]
+      }
+    },
+    {
+      "id": "magic_font_metamagic",
+      "name": "Metamagic",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 303,
+      "y": 570,
+      "source5e": "Sorcerer 2 & 3",
+      "summary": "Twist spells with Sorcery Points (Quickened, Twinned, Subtle).",
+      "mechanics": "Gain Sorcery Points equal to character level (or 3 + Tier×2) and 2 Metamagic options (Quickened, Twinned, Subtle, Careful, Distant, Empowered).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Metamagic"
+        ]
+      }
+    },
+    {
+      "id": "magic_eldritch_invocations",
+      "name": "Eldritch Invocations",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 175,
+      "y": 610,
+      "source5e": "Warlock 2",
+      "summary": "Always-on eldritch augmentations and cantrip empowerment.",
+      "mechanics": "Learn 2 Eldritch Invocations (e.g., Agonizing Blast, Devil’s Sight, Mask of Many Faces, Repelling Blast); learn +1 additional invocation per Tier.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Invocations"
+        ]
+      }
+    },
+    {
+      "id": "magic_arcane_ward",
+      "name": "Arcane Ward",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 712,
+      "y": 445,
+      "source5e": "Abjuration Wizard 2 & 6",
+      "summary": "Project a rechargeable magical shield that absorbs damage.",
+      "mechanics": "Create an Arcane Ward with HP = 2 × level + casting mod. Recharge it when casting abjuration spells; at Tier III, project it to shield allies within 30 ft.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Ward"
+        ]
+      }
+    },
+    {
+      "id": "magic_sculpt_spells",
+      "name": "Sculpt Spells",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 625,
+      "y": 583,
+      "source5e": "Evocation Wizard 2 & 10",
+      "summary": "Carve safe pockets in area blasts to spare your allies.",
+      "mechanics": "Choose 1 + spell level allies when casting an AoE evocation spell; they automatically succeed on their save and take 0 damage.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Evocation"
+        ]
+      }
+    },
+    {
+      "id": "magic_spell_t2",
+      "name": "Spellcasting II",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "spellcasting",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 497,
+      "y": 684,
+      "source5e": "5e Tier II Spellcasting (Lv 5–10)",
+      "summary": "Unlock 3rd-, 4th-, and 5th-level spell slots.",
+      "mechanics": "Unlock 3rd-level slots (4th at Lv 7, 5th at Lv 9), +1 cantrip, and access to iconic mid-tier spells (Fireball, Counterspell, Haste, Fly, Wall of Force).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 2,
+        "tags": [
+          "3rd–5th Slots"
+        ]
+      }
+    },
+    {
+      "id": "magic_pact_boon",
+      "name": "Pact Boon",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 260,
+      "y": 799,
+      "source5e": "Warlock 3",
+      "summary": "Claim a Pact of the Tome, Chain familiar, or summoned Pact Blade.",
+      "mechanics": "Choose Pact of the Chain (upgraded familiar), Pact of the Tome (+3 cantrips from any list), or Pact of the Blade (summonable magical weapon using casting stat).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Pact Boon"
+        ]
+      }
+    },
+    {
+      "id": "magic_feat_warcaster",
+      "name": "War Caster",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 831,
+      "y": 582,
+      "source5e": "Feat: War Caster",
+      "summary": "Advantage on Concentration saves and opportunity-attack spells.",
+      "mechanics": "Advantage on CON saves to maintain concentration; perform somatic components with hands full; cast a single-target spell as an opportunity attack.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Caster Feat"
+        ]
+      }
+    },
+    {
+      "id": "magic_feat_elem_adept",
+      "name": "Elemental Adept",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 823,
+      "y": 767,
+      "source5e": "Feat: Elemental Adept & Spell Sniper",
+      "summary": "Pierce elemental resistance and double ranged spell reach.",
+      "mechanics": "Spells of your chosen element ignore resistance and treat 1s on damage dice as 2s. Double range on attack-roll spells and ignore half/three-quarters cover.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Elemental Pierce"
+        ]
+      }
+    },
+    {
+      "id": "magic_spell_t3",
+      "name": "Spellcasting III",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "spellcasting",
+      "tier": 3,
+      "cost": 4,
+      "prereqMode": "all",
+      "x": 664,
+      "y": 914,
+      "source5e": "5e Tier III Spellcasting (Lv 11–16)",
+      "summary": "Unlock 6th- and 7th-level spell slots.",
+      "mechanics": "Unlock 6th-level slots (7th at Lv 13) and high-magic incantations (Disintegrate, Chain Lightning, Forcecage, Teleport).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 3,
+        "tags": [
+          "6th–7th Slots"
+        ]
+      }
+    },
+    {
+      "id": "magic_wild_surge",
+      "name": "Bend Luck & Chaos",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 438,
+      "y": 1031,
+      "source5e": "Wild Magic Sorcerer 6 / 14",
+      "summary": "Manipulate d20 rolls with Sorcery Points and master arcane flux.",
+      "mechanics": "Reaction (2 Sorcery Points): add or subtract 1d4 from another creature’s attack roll, ability check, or saving throw. Gain +1 Metamagic option.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Fate Warp"
+        ]
+      }
+    },
+    {
+      "id": "magic_spell_mastery",
+      "name": "Spell Mastery",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 4,
+      "prereqMode": "all",
+      "x": 971,
+      "y": 938,
+      "source5e": "Wizard 18",
+      "summary": "Cast a chosen 1st- and 2nd-level spell at will without slots.",
+      "mechanics": "Choose one 1st-level and one 2nd-level spell you know. Cast them at their lowest level at will without expending spell slots.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "At-Will Spells",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "magic_spell_t4",
+      "name": "Archmage (Spellcasting IV)",
+      "role": "magic",
+      "secondaryRoles": [],
+      "category": "spellcasting",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": 721,
+      "y": 1153,
+      "source5e": "5e Tier IV Spellcasting (Lv 17–20)",
+      "summary": "Command 8th- and 9th-level world-shaping magic (Wish, Meteor Swarm).",
+      "mechanics": "Unlock 8th-level slots (9th at Lv 17) and ascend to true Archmage mastery.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 4,
+        "tags": [
+          "8th–9th Slots",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "social_root",
+      "name": "Social",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "root",
+      "tier": 0,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -153,
+      "y": 210,
+      "source5e": "Core Role Root",
+      "summary": "Diplomacy, performance, leadership, deception, and inspiring allies.",
+      "mechanics": "Unlocks the Social branch. Learn 1 extra Language and gain proficiency with 1 Musical Instrument or Gaming Set.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Musical Instrument / Gaming Set",
+          "Extra Language"
+        ],
+        "spellTier": 0,
+        "tags": [
+          "Social Root"
+        ]
+      }
+    },
+    {
+      "id": "social_skill_performance",
+      "name": "Performance",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -85,
+      "y": 432,
+      "source5e": "Core Skill (CHA)",
+      "summary": "Captivate audiences through music, oratory, or theater.",
+      "mechanics": "Gain proficiency in the Performance skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Performance"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_save_cha",
+      "name": "Charisma Save",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -216,
+      "y": 453,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Anchor your sense of self against banishment and possession.",
+      "mechanics": "Gain proficiency in Charisma saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "CHA"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_skill_persuasion",
+      "name": "Persuasion",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -239,
+      "y": 322,
+      "source5e": "Core Skill (CHA)",
+      "summary": "Win allies, broker treaties, and sway hearts in good faith.",
+      "mechanics": "Gain proficiency in the Persuasion skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Persuasion"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_skill_deception",
+      "name": "Deception",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -372,
+      "y": 348,
+      "source5e": "Core Skill (CHA)",
+      "summary": "Spin convincing bluffs, fast-talk guards, and conceal truths.",
+      "mechanics": "Gain proficiency in the Deception skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Deception"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_skill_intimidation",
+      "name": "Intimidation",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -373,
+      "y": 214,
+      "source5e": "Core Skill (CHA)",
+      "summary": "Project menace, command obedience, and shatter enemy morale.",
+      "mechanics": "Gain proficiency in the Intimidation skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Intimidation"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_bardic_inspiration",
+      "name": "Bardic Inspiration",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -219,
+      "y": 601,
+      "source5e": "Bard 1",
+      "summary": "Grant allies bonus inspiration dice (d6 → d12) on key rolls.",
+      "mechanics": "Bonus action (CHA mod/LR; SR at Tier II): grant an ally within 60 ft an Inspiration die (d6 at T1, d8 at T2, d10 at T3, d12 at T4) to add to an ability check, attack roll, or save.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Inspiration"
+        ]
+      }
+    },
+    {
+      "id": "social_jack_of_trades",
+      "name": "Jack of All Trades",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -373,
+      "y": 514,
+      "source5e": "Bard 2",
+      "summary": "Add half proficiency to all non-proficient checks & Song of Rest.",
+      "mechanics": "Add half your proficiency bonus (rounded down) to any ability check you make that doesn’t already include your proficiency bonus (including Initiative). Allies regain +1d6 HP on short rests.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Versatile"
+        ]
+      }
+    },
+    {
+      "id": "social_prof_intrigue_tools",
+      "name": "Persona & Forgery",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -497,
+      "y": 403,
+      "source5e": "Charlatan / Spy / Assassin",
+      "summary": "Master Disguise Kits and Forgery Kits.",
+      "mechanics": "Gain proficiency with Disguise Kits and Forgery Kits, plus one established false identity.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Disguise Kit",
+          "Forgery Kit"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "social_cutting_words",
+      "name": "Cutting Words",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -261,
+      "y": 804,
+      "source5e": "College of Lore Bard 3 & 5",
+      "summary": "Subtract Inspiration dice from enemy attacks, checks, or damage.",
+      "mechanics": "Reaction: spend a Bardic Inspiration die to subtract its roll from a visible creature’s attack roll, ability check, or damage roll within 60 ft. Inspiration now recharges on a short rest.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Debuff Reaction"
+        ]
+      }
+    },
+    {
+      "id": "social_countercharm",
+      "name": "Countercharm",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -402,
+      "y": 726,
+      "source5e": "Bard 6",
+      "summary": "Rally allies with advantage against frightened and charmed effects.",
+      "mechanics": "Action (or Bonus Action once/SR): for 1 round, allies within 30 ft have advantage on saves against being frightened or charmed, and may immediately retry one failed save.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Anti-Fear/Charm"
+        ]
+      }
+    },
+    {
+      "id": "social_feat_inspiring_leader",
+      "name": "Inspiring Leader",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -543,
+      "y": 647,
+      "source5e": "Feat: Inspiring Leader",
+      "summary": "Deliver a 10-minute speech granting Level + CHA Temp HP to the party.",
+      "mechanics": "Up to 6 friendly creatures who hear your 10-minute address gain temporary HP equal to your character level + CHA modifier (1/SR per creature).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Party Temp HP"
+        ]
+      }
+    },
+    {
+      "id": "social_silver_tongue",
+      "name": "Silver Tongue",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -661,
+      "y": 535,
+      "source5e": "College of Eloquence Bard 3",
+      "summary": "Treat d20 rolls of 9 or lower as 10 on Persuasion and Deception.",
+      "mechanics": "Whenever you make a Persuasion or Deception check, treat a d20 roll of 9 or lower as a 10.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Social Floor 10"
+        ]
+      }
+    },
+    {
+      "id": "social_feat_actor",
+      "name": "Master Mimic (Actor)",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -714,
+      "y": 412,
+      "source5e": "Feat: Actor",
+      "summary": "Imitate voices flawlessly and gain advantage while disguised.",
+      "mechanics": "Gain +1 CHA, advantage on Deception and Performance checks when passing yourself off as another person, and mimic any speech or sound heard for 1 minute.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Social Feat"
+        ]
+      }
+    },
+    {
+      "id": "social_peerless_skill",
+      "name": "Peerless Skill",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -458,
+      "y": 1028,
+      "source5e": "College of Lore 14 / Swashbuckler Panache",
+      "summary": "Inspire your own ability checks and taunt or charm foes with pure panache.",
+      "mechanics": "Roll a Bardic Inspiration die and add it to your own ability check. Action: make a Persuasion check contested by Insight to impose disadvantage on a hostile foe attacking anyone else, or charm a non-hostile target for 1 minute.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Self-Inspire"
+        ]
+      }
+    },
+    {
+      "id": "social_command_presence",
+      "name": "Commanding Presence",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -781,
+      "y": 809,
+      "source5e": "Warlord / Banneret / Conquest Presence",
+      "summary": "Turn fear and authority into decisive battlefield orders.",
+      "mechanics": "Bonus action (CHA mod/LR): issue a command allowing an ally within 60 ft to immediately use their reaction to move half speed or make one weapon attack; or force a foe within 30 ft to make a WIS save or become frightened for 1 minute.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Tactical Command"
+        ]
+      }
+    },
+    {
+      "id": "social_capstone_sovereign",
+      "name": "Sovereign Voice",
+      "role": "social",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": -755,
+      "y": 1119,
+      "source5e": "Bard 20 / Universal Speech",
+      "summary": "Never start a fight without Inspiration and speak to all minds.",
+      "mechanics": "Roll initiative with 0 Inspiration dice to immediately regain 2 dice. All creatures with INT 4+ understand your speech; once per long rest, issue a Sovereign Decree granting all allies within 60 ft advantage on attacks and saves for 1 round.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "exploring_root",
+      "name": "Exploring",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "root",
+      "tier": 0,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -247,
+      "y": -80,
+      "source5e": "Core Role Root",
+      "summary": "Stealth, scouting, traps, survival, mobility, and sharp senses.",
+      "mechanics": "Unlocks the Exploring branch. Gain +5 ft walking speed and proficiency with Explorer’s Pack navigation.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Explorer Root",
+          "+5 ft Speed"
+        ]
+      }
+    },
+    {
+      "id": "exploring_skill_investigation",
+      "name": "Investigation",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -430,
+      "y": 66,
+      "source5e": "Core Skill (INT)",
+      "summary": "Uncover traps, secret doors, clues, and logical deductions.",
+      "mechanics": "Gain proficiency in the Investigation skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Investigation"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_perception",
+      "name": "Perception",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -506,
+      "y": -42,
+      "source5e": "Core Skill (WIS)",
+      "summary": "Spot ambushes, hidden creatures, and faint details.",
+      "mechanics": "Gain proficiency in the Perception skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Perception"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_survival",
+      "name": "Survival",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -380,
+      "y": -81,
+      "source5e": "Core Skill (WIS)",
+      "summary": "Track quarry, forage food, predict storms, and guide expeditions.",
+      "mechanics": "Gain proficiency in the Survival skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Survival"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_nature",
+      "name": "Nature",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -466,
+      "y": -187,
+      "source5e": "Core Skill (INT)",
+      "summary": "Know beasts, flora, weather, and primal ecosystems.",
+      "mechanics": "Gain proficiency in the Nature skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Nature"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_save_dex",
+      "name": "Dexterity Save",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "save",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -334,
+      "y": -205,
+      "source5e": "Saving Throw Proficiency",
+      "summary": "Dodge fireballs, falling rubble, and dragon breath.",
+      "mechanics": "Gain proficiency in Dexterity saving throws.",
+      "grants": {
+        "hitDie": null,
+        "saves": [
+          "DEX"
+        ],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_stealth",
+      "name": "Stealth",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -411,
+      "y": -312,
+      "source5e": "Core Skill (DEX)",
+      "summary": "Move unseen and unheard through shadows and wilderness.",
+      "mechanics": "Gain proficiency in the Stealth skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Stealth"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_prof_thieves_tools",
+      "name": "Thieves' Tools",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -635,
+      "y": 93,
+      "source5e": "Rogue 1",
+      "summary": "Pick locks, disable traps, and bypass security mechanisms.",
+      "mechanics": "Gain proficiency with Thieves’ Tools and learn Thieves’ Cant.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Thieves' Tools"
+        ],
+        "spellTier": 0,
+        "tags": [
+          "Thieves' Cant"
+        ]
+      }
+    },
+    {
+      "id": "exploring_expertise",
+      "name": "Expertise",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -684,
+      "y": -29,
+      "source5e": "Rogue 1 / Bard 3",
+      "summary": "Double your proficiency bonus on two chosen skills or tools.",
+      "mechanics": "Choose two of your skill proficiencies (or one skill and Thieves’ Tools). Your proficiency bonus is doubled for any ability check using them.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Double Prof (2)"
+        ]
+      }
+    },
+    {
+      "id": "exploring_hd_d8",
+      "name": "Hardened Scout (d8)",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "hit_die",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -602,
+      "y": -133,
+      "source5e": "Rogue / Monk / Druid Hit Die",
+      "summary": "Build trail-forged resilience, upgrading your Hit Die to d8.",
+      "mechanics": "Your Hit Die becomes at least d8.",
+      "grants": {
+        "hitDie": 8,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_prof_wild_tools",
+      "name": "Herbalism & Maps",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -669,
+      "y": -247,
+      "source5e": "Druid / Outlander",
+      "summary": "Craft healing potions and chart unknown regions.",
+      "mechanics": "Gain proficiency with Herbalism Kits and Cartographer’s Tools.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Herbalism Kit",
+          "Cartographer's Tools"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_animal",
+      "name": "Animal Handling",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -545,
+      "y": -293,
+      "source5e": "Core Skill (WIS)",
+      "summary": "Calm mounts, read beasts, and bond with wild companions.",
+      "mechanics": "Gain proficiency in the Animal Handling skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Animal Handling"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_acrobatics",
+      "name": "Acrobatics",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -594,
+      "y": -418,
+      "source5e": "Core Skill (DEX)",
+      "summary": "Tumble, balance on narrow ledges, and escape grapples.",
+      "mechanics": "Gain proficiency in the Acrobatics skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Acrobatics"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_skill_sleight",
+      "name": "Sleight of Hand",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "skill",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -463,
+      "y": -433,
+      "source5e": "Core Skill (DEX)",
+      "summary": "Legerdemain, pickpocketing, and concealing small objects.",
+      "mechanics": "Gain proficiency in the Sleight of Hand skill.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [
+          "Sleight of Hand"
+        ],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_prof_light_finesse",
+      "name": "Skirmisher Gear",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "proficiency",
+      "tier": 1,
+      "cost": 1,
+      "prereqMode": "all",
+      "x": -292,
+      "y": -369,
+      "source5e": "Rogue 1",
+      "summary": "Light Armor plus rapiers, shortswords, hand crossbows, and shortbows.",
+      "mechanics": "Gain proficiency with Light Armor, Shortswords, Rapiers, Hand Crossbows, and Shortbows.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [
+          "Light Armor",
+          "Finesse & Scout Weapons"
+        ],
+        "spellTier": 0,
+        "tags": []
+      }
+    },
+    {
+      "id": "exploring_feat_alert_mobile",
+      "name": "Alert & Mobile",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "feat",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -865,
+      "y": 0,
+      "source5e": "Feats: Alert / Mobile",
+      "summary": "+5 Initiative, cannot be surprised, and +10 ft movement speed.",
+      "mechanics": "Gain +5 bonus to Initiative, you can’t be surprised while conscious, and your walking speed increases by +10 ft.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "+5 Init",
+          "+10 ft Speed"
+        ]
+      }
+    },
+    {
+      "id": "exploring_natural_explorer",
+      "name": "Natural Explorer",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -838,
+      "y": -193,
+      "source5e": "Ranger 1 & 8",
+      "summary": "Ignore nonmagical difficult terrain and master overland travel.",
+      "mechanics": "Moving through nonmagical difficult terrain costs no extra movement. Gain climbing and swimming speed equal to walking speed, plus double foraging and tracking mastery.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Climb/Swim Speed"
+        ]
+      }
+    },
+    {
+      "id": "exploring_cunning_action",
+      "name": "Cunning Action",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -740,
+      "y": -428,
+      "source5e": "Rogue 2",
+      "summary": "Dash, Disengage, or Hide as a bonus action every turn.",
+      "mechanics": "On each of your turns in combat, you can use a bonus action to take the Dash, Disengage, or Hide action.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Bonus Mobility"
+        ]
+      }
+    },
+    {
+      "id": "exploring_evasion",
+      "name": "Evasion & Uncanny Dodge",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -728,
+      "y": -611,
+      "source5e": "Rogue 5 & 7 / Monk 7",
+      "summary": "Halve attack damage with a reaction and take 0 damage on passed DEX saves.",
+      "mechanics": "Reaction: halve damage of an attack that hits you from an attacker you can see. On DEX saves for half damage, take 0 damage on success and half on failure.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Evasion",
+          "Uncanny Dodge"
+        ]
+      }
+    },
+    {
+      "id": "exploring_reliable_talent",
+      "name": "Reliable Talent",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -1129,
+      "y": -119,
+      "source5e": "Rogue 11",
+      "summary": "Never roll below 10 on any proficient ability check.",
+      "mechanics": "Whenever you make an ability check that lets you add your proficiency bonus, treat a d20 roll of 9 or lower as a 10.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Skill Floor 10"
+        ]
+      }
+    },
+    {
+      "id": "exploring_vanish",
+      "name": "Vanish & Feral Senses",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -1020,
+      "y": -498,
+      "source5e": "Ranger 14 & 18 / Rogue 14",
+      "summary": "Sense invisible foes within 30 ft and leave no trail.",
+      "mechanics": "You can’t be tracked by nonmagical means unless you choose to leave a trail. Gain 10-ft Blindsight and never suffer disadvantage attacking invisible creatures you can hear.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Blindsight 10 ft"
+        ]
+      }
+    },
+    {
+      "id": "exploring_capstone_phantom",
+      "name": "Stroke of Luck",
+      "role": "exploring",
+      "secondaryRoles": [],
+      "category": "class_feature",
+      "tier": 4,
+      "cost": 5,
+      "prereqMode": "all",
+      "x": -1298,
+      "y": -372,
+      "source5e": "Rogue 20",
+      "summary": "Turn a missed attack into a hit or a failed check into a natural 20.",
+      "mechanics": "Once per short or long rest, turn a missed weapon attack into a hit, OR treat a failed ability check as if you rolled a 20 on the d20.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Auto-20",
+          "Capstone"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_divine_smite",
+      "name": "Divine Smite",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "combat",
+        "devotion"
+      ],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 461,
+      "y": -635,
+      "source5e": "Paladin 2 (Combat + Devotion)",
+      "summary": "Channel sacred wrath into melee hits for explosive radiant damage.",
+      "mechanics": "When you hit with a melee weapon attack, expend a spell slot or Channel Divinity charge to deal +2d8 radiant damage (+1d8 per slot level above 1st; +1d8 vs undead/fiends).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Combat+Devotion",
+          "Smite"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_sacred_weapon",
+      "name": "Sacred Avenger",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "combat",
+        "devotion"
+      ],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 620,
+      "y": -854,
+      "source5e": "Oath of Devotion 3 & Paladin 11",
+      "summary": "Every melee strike deals +1d8 radiant damage and glows with holy accuracy.",
+      "mechanics": "All melee weapon hits deal an extra 1d8 radiant damage (Improved Divine Smite). Channel Divinity: add CHA/WIS modifier to weapon attack rolls for 1 minute.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Combat+Devotion",
+          "+1d8 Radiant"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_divine_magic",
+      "name": "Divine Soul",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "devotion",
+        "magic"
+      ],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": 747,
+      "y": 243,
+      "source5e": "Cleric / Divine Soul Sorcerer (Devotion + Magic)",
+      "summary": "Unite divine and arcane spell lists and bend fate once per short rest.",
+      "mechanics": "You may learn/prepare both Cleric and Arcane spells using your spellcasting slots. Once per short rest, add 2d4 to a failed saving throw or missed attack roll.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Devotion+Magic",
+          "Cleric Spells"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_radiant_conduit",
+      "name": "Celestial Conduit",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "devotion",
+        "magic"
+      ],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 1003,
+      "y": 326,
+      "source5e": "Celestial Warlock / Light Cleric 8",
+      "summary": "Empower radiant/healing spells and summon spectral wings of light.",
+      "mechanics": "Add your casting modifier to one damage roll of any radiant or fire spell. Gain a 30-ft flying speed for 1 minute once per short rest.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Devotion+Magic",
+          "Flight"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_magical_secrets",
+      "name": "Magical Secrets",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "magic",
+        "social"
+      ],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 0,
+      "y": 785,
+      "source5e": "Bard 6 / 10 (Magic + Social)",
+      "summary": "Poach two spells from any tradition and weave subtle enchantments.",
+      "mechanics": "Learn 2 spells of any class list that you have slots to cast. Impose disadvantage on a target’s save against your enchantment or illusion spell once per short rest.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Magic+Social",
+          "Any-List Spells"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_enthralling_weave",
+      "name": "Split Enchantment",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "magic",
+        "social"
+      ],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 0,
+      "y": 1055,
+      "source5e": "Enchantment Wizard 10 / Glamour Bard",
+      "summary": "Twin single-target enchantment spells automatically for free.",
+      "mechanics": "When you cast a single-target enchantment spell of 1st level or higher, you may target a second creature in range at no extra cost.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Magic+Social",
+          "Twin Enchant"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_master_intrigue",
+      "name": "Master of Intrigue",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "social",
+        "exploring"
+      ],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -747,
+      "y": 243,
+      "source5e": "Mastermind Rogue 3 (Social + Exploring)",
+      "summary": "Use the Help action at 30 ft as a bonus action and read social tells.",
+      "mechanics": "Use the Help action as a bonus action; when aiding an ally’s attack, the target can be within 30 ft. Spend 1 minute observing a creature to learn two of its relative stats.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Social+Exploring",
+          "30-ft Help"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_shadow_network",
+      "name": "Spymaster’s Web",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "social",
+        "exploring"
+      ],
+      "category": "subclass_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -1003,
+      "y": 326,
+      "source5e": "Mastermind 13 / Whispers Bard",
+      "summary": "Redirect attacks onto nearby foes and shield your thoughts from magic.",
+      "mechanics": "Reaction: when targeted by an attack while a creature within 5 ft gives you cover, force the attack to target that creature instead. Thoughts cannot be read telepathically.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Social+Exploring",
+          "Misdirection"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_sneak_attack",
+      "name": "Sneak Attack",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "exploring",
+        "combat"
+      ],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -344,
+      "y": -490,
+      "source5e": "Rogue 1 (Exploring + Combat)",
+      "summary": "Deal precision bonus dice (+1d6 to +6d6) with finesse or ranged weapons.",
+      "mechanics": "Once per turn, deal extra precision damage with a finesse or ranged weapon when you have advantage or an ally is within 5 ft of target: 2d6 at T1, 4d6 at T2, 6d6 at T3, 8d6 at T4.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Exploring+Combat",
+          "Sneak Attack"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_martial_arts",
+      "name": "Martial Arts & Ki",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "exploring",
+        "combat"
+      ],
+      "category": "class_feature",
+      "tier": 1,
+      "cost": 2,
+      "prereqMode": "all",
+      "x": -337,
+      "y": -622,
+      "source5e": "Monk 1 & 2 (Exploring + Combat)",
+      "summary": "Unarmored Defense, DEX unarmed strikes, and Ki Flurry of Blows.",
+      "mechanics": "While unarmored, AC = 10 + DEX + WIS, unarmed strikes use DEX and d6 (d8 at T2, d10 at T3) + bonus unarmed strike. Gain Ki points (SR recharge) for Flurry of Blows & Patient Defense.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Exploring+Combat",
+          "Ki"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_assassinate",
+      "name": "Assassinate & Hunter",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "exploring",
+        "combat"
+      ],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -599,
+      "y": -665,
+      "source5e": "Assassin Rogue 3 / Hunter Ranger 3",
+      "summary": "Auto-crit surprised foes and add +1d8 Colossus Slayer damage.",
+      "mechanics": "Advantage on attacks against creatures that haven’t acted yet; any hit against a surprised creature is a critical hit. Once per turn, deal +1d8 damage to an injured foe.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Exploring+Combat",
+          "Ambush Crit"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_stunning_strike",
+      "name": "Stunning Strike",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "exploring",
+        "combat"
+      ],
+      "category": "class_feature",
+      "tier": 3,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -532,
+      "y": -922,
+      "source5e": "Monk 5 & 14 (Diamond Soul)",
+      "summary": "Spend 1 Ki on melee hit to Stun enemies (CON save).",
+      "mechanics": "When you hit with a melee attack, spend 1 Ki to force a CON save or Stun the target until the end of your next turn. Also spend 1 Ki to reroll a failed saving throw.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Exploring+Combat",
+          "Stun"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_war_magic",
+      "name": "War Magic (Spellblade)",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "combat",
+        "magic"
+      ],
+      "category": "subclass_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": 42,
+      "y": -55,
+      "source5e": "Eldritch Knight 7 / Bladesinger (Combat + Magic)",
+      "summary": "Weave steel and spells: cast a cantrip and strike as a bonus action.",
+      "mechanics": "When you use your action to cast a cantrip, make one weapon attack as a bonus action. Bond up to two weapons (cannot be disarmed; summon as bonus action).",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Combat+Magic",
+          "Gish"
+        ]
+      }
+    },
+    {
+      "id": "hybrid_wild_shape",
+      "name": "Wild Shape",
+      "role": "hybrid",
+      "secondaryRoles": [
+        "exploring",
+        "magic"
+      ],
+      "category": "class_feature",
+      "tier": 2,
+      "cost": 3,
+      "prereqMode": "all",
+      "x": -72,
+      "y": 55,
+      "source5e": "Druid 2 / Circle of the Moon (Exploring + Magic)",
+      "summary": "Transform into beasts as a bonus action (2/SR) with Primal spell access.",
+      "mechanics": "Bonus action (2/SR): transform into a beast up to CR 1 (CR = floor(level/3) at Tier III). Gain access to Druid primal spells through your spellcasting slots.",
+      "grants": {
+        "hitDie": null,
+        "saves": [],
+        "skills": [],
+        "proficiencies": [],
+        "spellTier": 0,
+        "tags": [
+          "Hybrid: Exploring+Magic",
+          "Shapeshift"
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_combat_root__combat_skill_athletics",
+      "from": "combat_root",
+      "to": "combat_skill_athletics"
+    },
+    {
+      "id": "edge_combat_root__combat_save_str",
+      "from": "combat_root",
+      "to": "combat_save_str"
+    },
+    {
+      "id": "edge_combat_root__combat_prof_weapons_martial",
+      "from": "combat_root",
+      "to": "combat_prof_weapons_martial"
+    },
+    {
+      "id": "edge_combat_root__combat_hd_d8",
+      "from": "combat_root",
+      "to": "combat_hd_d8"
+    },
+    {
+      "id": "edge_combat_root__combat_prof_armor_med",
+      "from": "combat_root",
+      "to": "combat_prof_armor_med"
+    },
+    {
+      "id": "edge_combat_skill_athletics__combat_rage",
+      "from": "combat_skill_athletics",
+      "to": "combat_rage"
+    },
+    {
+      "id": "edge_combat_save_str__combat_rage",
+      "from": "combat_save_str",
+      "to": "combat_rage"
+    },
+    {
+      "id": "edge_combat_prof_weapons_martial__combat_fighting_style",
+      "from": "combat_prof_weapons_martial",
+      "to": "combat_fighting_style"
+    },
+    {
+      "id": "edge_combat_hd_d8__combat_second_wind",
+      "from": "combat_hd_d8",
+      "to": "combat_second_wind"
+    },
+    {
+      "id": "edge_combat_hd_d8__combat_save_con",
+      "from": "combat_hd_d8",
+      "to": "combat_save_con"
+    },
+    {
+      "id": "edge_combat_rage__combat_reckless_attack",
+      "from": "combat_rage",
+      "to": "combat_reckless_attack"
+    },
+    {
+      "id": "edge_combat_fighting_style__combat_improved_crit",
+      "from": "combat_fighting_style",
+      "to": "combat_improved_crit"
+    },
+    {
+      "id": "edge_combat_fighting_style__combat_extra_attack",
+      "from": "combat_fighting_style",
+      "to": "combat_extra_attack"
+    },
+    {
+      "id": "edge_combat_fighting_style__combat_maneuvers",
+      "from": "combat_fighting_style",
+      "to": "combat_maneuvers"
+    },
+    {
+      "id": "edge_combat_second_wind__combat_action_surge",
+      "from": "combat_second_wind",
+      "to": "combat_action_surge"
+    },
+    {
+      "id": "edge_combat_hd_d8__combat_hd_d10",
+      "from": "combat_hd_d8",
+      "to": "combat_hd_d10"
+    },
+    {
+      "id": "edge_combat_save_con__combat_hd_d10",
+      "from": "combat_save_con",
+      "to": "combat_hd_d10"
+    },
+    {
+      "id": "edge_combat_prof_armor_med__combat_prof_armor_heavy",
+      "from": "combat_prof_armor_med",
+      "to": "combat_prof_armor_heavy"
+    },
+    {
+      "id": "edge_combat_extra_attack__combat_feat_gwm",
+      "from": "combat_extra_attack",
+      "to": "combat_feat_gwm"
+    },
+    {
+      "id": "edge_combat_prof_armor_heavy__combat_feat_sentinel",
+      "from": "combat_prof_armor_heavy",
+      "to": "combat_feat_sentinel"
+    },
+    {
+      "id": "edge_combat_reckless_attack__combat_brutal_critical",
+      "from": "combat_reckless_attack",
+      "to": "combat_brutal_critical"
+    },
+    {
+      "id": "edge_combat_improved_crit__combat_brutal_critical",
+      "from": "combat_improved_crit",
+      "to": "combat_brutal_critical"
+    },
+    {
+      "id": "edge_combat_action_surge__combat_indomitable",
+      "from": "combat_action_surge",
+      "to": "combat_indomitable"
+    },
+    {
+      "id": "edge_combat_save_con__combat_indomitable",
+      "from": "combat_save_con",
+      "to": "combat_indomitable"
+    },
+    {
+      "id": "edge_combat_hd_d10__combat_hd_d12",
+      "from": "combat_hd_d10",
+      "to": "combat_hd_d12"
+    },
+    {
+      "id": "edge_combat_extra_attack__combat_three_attacks",
+      "from": "combat_extra_attack",
+      "to": "combat_three_attacks"
+    },
+    {
+      "id": "edge_combat_maneuvers__combat_three_attacks",
+      "from": "combat_maneuvers",
+      "to": "combat_three_attacks"
+    },
+    {
+      "id": "edge_combat_brutal_critical__combat_capstone_titan",
+      "from": "combat_brutal_critical",
+      "to": "combat_capstone_titan"
+    },
+    {
+      "id": "edge_combat_hd_d12__combat_capstone_titan",
+      "from": "combat_hd_d12",
+      "to": "combat_capstone_titan"
+    },
+    {
+      "id": "edge_devotion_root__devotion_prof_armor_shield",
+      "from": "devotion_root",
+      "to": "devotion_prof_armor_shield"
+    },
+    {
+      "id": "edge_devotion_root__devotion_skill_religion",
+      "from": "devotion_root",
+      "to": "devotion_skill_religion"
+    },
+    {
+      "id": "edge_devotion_root__devotion_hd_d8",
+      "from": "devotion_root",
+      "to": "devotion_hd_d8"
+    },
+    {
+      "id": "edge_devotion_root__devotion_skill_medicine",
+      "from": "devotion_root",
+      "to": "devotion_skill_medicine"
+    },
+    {
+      "id": "edge_devotion_root__devotion_save_wis",
+      "from": "devotion_root",
+      "to": "devotion_save_wis"
+    },
+    {
+      "id": "edge_devotion_save_wis__devotion_skill_insight",
+      "from": "devotion_save_wis",
+      "to": "devotion_skill_insight"
+    },
+    {
+      "id": "edge_devotion_skill_religion__devotion_channel_divinity",
+      "from": "devotion_skill_religion",
+      "to": "devotion_channel_divinity"
+    },
+    {
+      "id": "edge_devotion_hd_d8__devotion_divine_sense",
+      "from": "devotion_hd_d8",
+      "to": "devotion_divine_sense"
+    },
+    {
+      "id": "edge_devotion_skill_medicine__devotion_lay_on_hands",
+      "from": "devotion_skill_medicine",
+      "to": "devotion_lay_on_hands"
+    },
+    {
+      "id": "edge_devotion_channel_divinity__devotion_warding_flare",
+      "from": "devotion_channel_divinity",
+      "to": "devotion_warding_flare"
+    },
+    {
+      "id": "edge_devotion_divine_sense__devotion_aura_protection",
+      "from": "devotion_divine_sense",
+      "to": "devotion_aura_protection"
+    },
+    {
+      "id": "edge_devotion_save_wis__devotion_aura_protection",
+      "from": "devotion_save_wis",
+      "to": "devotion_aura_protection"
+    },
+    {
+      "id": "edge_devotion_lay_on_hands__devotion_disciple_life",
+      "from": "devotion_lay_on_hands",
+      "to": "devotion_disciple_life"
+    },
+    {
+      "id": "edge_devotion_channel_divinity__devotion_disciple_life",
+      "from": "devotion_channel_divinity",
+      "to": "devotion_disciple_life"
+    },
+    {
+      "id": "edge_devotion_skill_medicine__devotion_feat_healer_resilient",
+      "from": "devotion_skill_medicine",
+      "to": "devotion_feat_healer_resilient"
+    },
+    {
+      "id": "edge_devotion_skill_insight__devotion_feat_healer_resilient",
+      "from": "devotion_skill_insight",
+      "to": "devotion_feat_healer_resilient"
+    },
+    {
+      "id": "edge_devotion_warding_flare__devotion_destroy_undead",
+      "from": "devotion_warding_flare",
+      "to": "devotion_destroy_undead"
+    },
+    {
+      "id": "edge_devotion_aura_protection__devotion_aura_warding",
+      "from": "devotion_aura_protection",
+      "to": "devotion_aura_warding"
+    },
+    {
+      "id": "edge_devotion_destroy_undead__devotion_divine_intervention",
+      "from": "devotion_destroy_undead",
+      "to": "devotion_divine_intervention"
+    },
+    {
+      "id": "edge_devotion_aura_protection__devotion_divine_intervention",
+      "from": "devotion_aura_protection",
+      "to": "devotion_divine_intervention"
+    },
+    {
+      "id": "edge_devotion_aura_warding__devotion_capstone_avatar",
+      "from": "devotion_aura_warding",
+      "to": "devotion_capstone_avatar"
+    },
+    {
+      "id": "edge_devotion_disciple_life__devotion_capstone_avatar",
+      "from": "devotion_disciple_life",
+      "to": "devotion_capstone_avatar"
+    },
+    {
+      "id": "edge_magic_root__magic_save_int",
+      "from": "magic_root",
+      "to": "magic_save_int"
+    },
+    {
+      "id": "edge_magic_root__magic_skill_arcana",
+      "from": "magic_root",
+      "to": "magic_skill_arcana"
+    },
+    {
+      "id": "edge_magic_root__magic_spell_t1",
+      "from": "magic_root",
+      "to": "magic_spell_t1"
+    },
+    {
+      "id": "edge_magic_root__magic_skill_history",
+      "from": "magic_root",
+      "to": "magic_skill_history"
+    },
+    {
+      "id": "edge_magic_root__magic_prof_arcane_tools",
+      "from": "magic_root",
+      "to": "magic_prof_arcane_tools"
+    },
+    {
+      "id": "edge_magic_skill_arcana__magic_ritual_casting",
+      "from": "magic_skill_arcana",
+      "to": "magic_ritual_casting"
+    },
+    {
+      "id": "edge_magic_spell_t1__magic_arcane_recovery",
+      "from": "magic_spell_t1",
+      "to": "magic_arcane_recovery"
+    },
+    {
+      "id": "edge_magic_spell_t1__magic_font_metamagic",
+      "from": "magic_spell_t1",
+      "to": "magic_font_metamagic"
+    },
+    {
+      "id": "edge_magic_skill_arcana__magic_eldritch_invocations",
+      "from": "magic_skill_arcana",
+      "to": "magic_eldritch_invocations"
+    },
+    {
+      "id": "edge_magic_skill_history__magic_eldritch_invocations",
+      "from": "magic_skill_history",
+      "to": "magic_eldritch_invocations"
+    },
+    {
+      "id": "edge_magic_save_int__magic_arcane_ward",
+      "from": "magic_save_int",
+      "to": "magic_arcane_ward"
+    },
+    {
+      "id": "edge_magic_ritual_casting__magic_arcane_ward",
+      "from": "magic_ritual_casting",
+      "to": "magic_arcane_ward"
+    },
+    {
+      "id": "edge_magic_arcane_recovery__magic_sculpt_spells",
+      "from": "magic_arcane_recovery",
+      "to": "magic_sculpt_spells"
+    },
+    {
+      "id": "edge_magic_spell_t1__magic_spell_t2",
+      "from": "magic_spell_t1",
+      "to": "magic_spell_t2"
+    },
+    {
+      "id": "edge_magic_eldritch_invocations__magic_pact_boon",
+      "from": "magic_eldritch_invocations",
+      "to": "magic_pact_boon"
+    },
+    {
+      "id": "edge_magic_arcane_ward__magic_feat_warcaster",
+      "from": "magic_arcane_ward",
+      "to": "magic_feat_warcaster"
+    },
+    {
+      "id": "edge_magic_sculpt_spells__magic_feat_elem_adept",
+      "from": "magic_sculpt_spells",
+      "to": "magic_feat_elem_adept"
+    },
+    {
+      "id": "edge_magic_spell_t2__magic_spell_t3",
+      "from": "magic_spell_t2",
+      "to": "magic_spell_t3"
+    },
+    {
+      "id": "edge_magic_font_metamagic__magic_wild_surge",
+      "from": "magic_font_metamagic",
+      "to": "magic_wild_surge"
+    },
+    {
+      "id": "edge_magic_spell_t2__magic_wild_surge",
+      "from": "magic_spell_t2",
+      "to": "magic_wild_surge"
+    },
+    {
+      "id": "edge_magic_spell_t3__magic_spell_mastery",
+      "from": "magic_spell_t3",
+      "to": "magic_spell_mastery"
+    },
+    {
+      "id": "edge_magic_feat_elem_adept__magic_spell_mastery",
+      "from": "magic_feat_elem_adept",
+      "to": "magic_spell_mastery"
+    },
+    {
+      "id": "edge_magic_spell_t3__magic_spell_t4",
+      "from": "magic_spell_t3",
+      "to": "magic_spell_t4"
+    },
+    {
+      "id": "edge_social_root__social_skill_performance",
+      "from": "social_root",
+      "to": "social_skill_performance"
+    },
+    {
+      "id": "edge_social_root__social_save_cha",
+      "from": "social_root",
+      "to": "social_save_cha"
+    },
+    {
+      "id": "edge_social_root__social_skill_persuasion",
+      "from": "social_root",
+      "to": "social_skill_persuasion"
+    },
+    {
+      "id": "edge_social_root__social_skill_deception",
+      "from": "social_root",
+      "to": "social_skill_deception"
+    },
+    {
+      "id": "edge_social_root__social_skill_intimidation",
+      "from": "social_root",
+      "to": "social_skill_intimidation"
+    },
+    {
+      "id": "edge_social_skill_performance__social_bardic_inspiration",
+      "from": "social_skill_performance",
+      "to": "social_bardic_inspiration"
+    },
+    {
+      "id": "edge_social_skill_persuasion__social_jack_of_trades",
+      "from": "social_skill_persuasion",
+      "to": "social_jack_of_trades"
+    },
+    {
+      "id": "edge_social_skill_deception__social_prof_intrigue_tools",
+      "from": "social_skill_deception",
+      "to": "social_prof_intrigue_tools"
+    },
+    {
+      "id": "edge_social_bardic_inspiration__social_cutting_words",
+      "from": "social_bardic_inspiration",
+      "to": "social_cutting_words"
+    },
+    {
+      "id": "edge_social_save_cha__social_countercharm",
+      "from": "social_save_cha",
+      "to": "social_countercharm"
+    },
+    {
+      "id": "edge_social_bardic_inspiration__social_countercharm",
+      "from": "social_bardic_inspiration",
+      "to": "social_countercharm"
+    },
+    {
+      "id": "edge_social_jack_of_trades__social_feat_inspiring_leader",
+      "from": "social_jack_of_trades",
+      "to": "social_feat_inspiring_leader"
+    },
+    {
+      "id": "edge_social_skill_persuasion__social_silver_tongue",
+      "from": "social_skill_persuasion",
+      "to": "social_silver_tongue"
+    },
+    {
+      "id": "edge_social_skill_deception__social_silver_tongue",
+      "from": "social_skill_deception",
+      "to": "social_silver_tongue"
+    },
+    {
+      "id": "edge_social_prof_intrigue_tools__social_feat_actor",
+      "from": "social_prof_intrigue_tools",
+      "to": "social_feat_actor"
+    },
+    {
+      "id": "edge_social_cutting_words__social_peerless_skill",
+      "from": "social_cutting_words",
+      "to": "social_peerless_skill"
+    },
+    {
+      "id": "edge_social_countercharm__social_peerless_skill",
+      "from": "social_countercharm",
+      "to": "social_peerless_skill"
+    },
+    {
+      "id": "edge_social_feat_inspiring_leader__social_command_presence",
+      "from": "social_feat_inspiring_leader",
+      "to": "social_command_presence"
+    },
+    {
+      "id": "edge_social_skill_intimidation__social_command_presence",
+      "from": "social_skill_intimidation",
+      "to": "social_command_presence"
+    },
+    {
+      "id": "edge_social_peerless_skill__social_capstone_sovereign",
+      "from": "social_peerless_skill",
+      "to": "social_capstone_sovereign"
+    },
+    {
+      "id": "edge_social_command_presence__social_capstone_sovereign",
+      "from": "social_command_presence",
+      "to": "social_capstone_sovereign"
+    },
+    {
+      "id": "edge_exploring_root__exploring_skill_investigation",
+      "from": "exploring_root",
+      "to": "exploring_skill_investigation"
+    },
+    {
+      "id": "edge_exploring_root__exploring_skill_perception",
+      "from": "exploring_root",
+      "to": "exploring_skill_perception"
+    },
+    {
+      "id": "edge_exploring_root__exploring_skill_survival",
+      "from": "exploring_root",
+      "to": "exploring_skill_survival"
+    },
+    {
+      "id": "edge_exploring_root__exploring_skill_nature",
+      "from": "exploring_root",
+      "to": "exploring_skill_nature"
+    },
+    {
+      "id": "edge_exploring_root__exploring_save_dex",
+      "from": "exploring_root",
+      "to": "exploring_save_dex"
+    },
+    {
+      "id": "edge_exploring_root__exploring_skill_stealth",
+      "from": "exploring_root",
+      "to": "exploring_skill_stealth"
+    },
+    {
+      "id": "edge_exploring_skill_investigation__exploring_prof_thieves_tools",
+      "from": "exploring_skill_investigation",
+      "to": "exploring_prof_thieves_tools"
+    },
+    {
+      "id": "edge_exploring_skill_investigation__exploring_expertise",
+      "from": "exploring_skill_investigation",
+      "to": "exploring_expertise"
+    },
+    {
+      "id": "edge_exploring_skill_perception__exploring_expertise",
+      "from": "exploring_skill_perception",
+      "to": "exploring_expertise"
+    },
+    {
+      "id": "edge_exploring_skill_survival__exploring_hd_d8",
+      "from": "exploring_skill_survival",
+      "to": "exploring_hd_d8"
+    },
+    {
+      "id": "edge_exploring_skill_survival__exploring_prof_wild_tools",
+      "from": "exploring_skill_survival",
+      "to": "exploring_prof_wild_tools"
+    },
+    {
+      "id": "edge_exploring_skill_nature__exploring_prof_wild_tools",
+      "from": "exploring_skill_nature",
+      "to": "exploring_prof_wild_tools"
+    },
+    {
+      "id": "edge_exploring_skill_nature__exploring_skill_animal",
+      "from": "exploring_skill_nature",
+      "to": "exploring_skill_animal"
+    },
+    {
+      "id": "edge_exploring_save_dex__exploring_skill_acrobatics",
+      "from": "exploring_save_dex",
+      "to": "exploring_skill_acrobatics"
+    },
+    {
+      "id": "edge_exploring_skill_stealth__exploring_skill_sleight",
+      "from": "exploring_skill_stealth",
+      "to": "exploring_skill_sleight"
+    },
+    {
+      "id": "edge_exploring_root__exploring_prof_light_finesse",
+      "from": "exploring_root",
+      "to": "exploring_prof_light_finesse"
+    },
+    {
+      "id": "edge_exploring_expertise__exploring_feat_alert_mobile",
+      "from": "exploring_expertise",
+      "to": "exploring_feat_alert_mobile"
+    },
+    {
+      "id": "edge_exploring_hd_d8__exploring_feat_alert_mobile",
+      "from": "exploring_hd_d8",
+      "to": "exploring_feat_alert_mobile"
+    },
+    {
+      "id": "edge_exploring_prof_wild_tools__exploring_natural_explorer",
+      "from": "exploring_prof_wild_tools",
+      "to": "exploring_natural_explorer"
+    },
+    {
+      "id": "edge_exploring_skill_animal__exploring_natural_explorer",
+      "from": "exploring_skill_animal",
+      "to": "exploring_natural_explorer"
+    },
+    {
+      "id": "edge_exploring_skill_stealth__exploring_cunning_action",
+      "from": "exploring_skill_stealth",
+      "to": "exploring_cunning_action"
+    },
+    {
+      "id": "edge_exploring_skill_acrobatics__exploring_cunning_action",
+      "from": "exploring_skill_acrobatics",
+      "to": "exploring_cunning_action"
+    },
+    {
+      "id": "edge_exploring_save_dex__exploring_evasion",
+      "from": "exploring_save_dex",
+      "to": "exploring_evasion"
+    },
+    {
+      "id": "edge_exploring_cunning_action__exploring_evasion",
+      "from": "exploring_cunning_action",
+      "to": "exploring_evasion"
+    },
+    {
+      "id": "edge_exploring_expertise__exploring_reliable_talent",
+      "from": "exploring_expertise",
+      "to": "exploring_reliable_talent"
+    },
+    {
+      "id": "edge_exploring_feat_alert_mobile__exploring_reliable_talent",
+      "from": "exploring_feat_alert_mobile",
+      "to": "exploring_reliable_talent"
+    },
+    {
+      "id": "edge_exploring_natural_explorer__exploring_vanish",
+      "from": "exploring_natural_explorer",
+      "to": "exploring_vanish"
+    },
+    {
+      "id": "edge_exploring_evasion__exploring_vanish",
+      "from": "exploring_evasion",
+      "to": "exploring_vanish"
+    },
+    {
+      "id": "edge_exploring_reliable_talent__exploring_capstone_phantom",
+      "from": "exploring_reliable_talent",
+      "to": "exploring_capstone_phantom"
+    },
+    {
+      "id": "edge_exploring_vanish__exploring_capstone_phantom",
+      "from": "exploring_vanish",
+      "to": "exploring_capstone_phantom"
+    },
+    {
+      "id": "edge_combat_prof_weapons_martial__hybrid_divine_smite",
+      "from": "combat_prof_weapons_martial",
+      "to": "hybrid_divine_smite"
+    },
+    {
+      "id": "edge_devotion_channel_divinity__hybrid_divine_smite",
+      "from": "devotion_channel_divinity",
+      "to": "hybrid_divine_smite"
+    },
+    {
+      "id": "edge_hybrid_divine_smite__hybrid_sacred_weapon",
+      "from": "hybrid_divine_smite",
+      "to": "hybrid_sacred_weapon"
+    },
+    {
+      "id": "edge_combat_extra_attack__hybrid_sacred_weapon",
+      "from": "combat_extra_attack",
+      "to": "hybrid_sacred_weapon"
+    },
+    {
+      "id": "edge_devotion_channel_divinity__hybrid_divine_magic",
+      "from": "devotion_channel_divinity",
+      "to": "hybrid_divine_magic"
+    },
+    {
+      "id": "edge_magic_spell_t1__hybrid_divine_magic",
+      "from": "magic_spell_t1",
+      "to": "hybrid_divine_magic"
+    },
+    {
+      "id": "edge_hybrid_divine_magic__hybrid_radiant_conduit",
+      "from": "hybrid_divine_magic",
+      "to": "hybrid_radiant_conduit"
+    },
+    {
+      "id": "edge_magic_spell_t2__hybrid_radiant_conduit",
+      "from": "magic_spell_t2",
+      "to": "hybrid_radiant_conduit"
+    },
+    {
+      "id": "edge_magic_spell_t1__hybrid_magical_secrets",
+      "from": "magic_spell_t1",
+      "to": "hybrid_magical_secrets"
+    },
+    {
+      "id": "edge_social_bardic_inspiration__hybrid_magical_secrets",
+      "from": "social_bardic_inspiration",
+      "to": "hybrid_magical_secrets"
+    },
+    {
+      "id": "edge_hybrid_magical_secrets__hybrid_enthralling_weave",
+      "from": "hybrid_magical_secrets",
+      "to": "hybrid_enthralling_weave"
+    },
+    {
+      "id": "edge_magic_spell_t2__hybrid_enthralling_weave",
+      "from": "magic_spell_t2",
+      "to": "hybrid_enthralling_weave"
+    },
+    {
+      "id": "edge_social_prof_intrigue_tools__hybrid_master_intrigue",
+      "from": "social_prof_intrigue_tools",
+      "to": "hybrid_master_intrigue"
+    },
+    {
+      "id": "edge_exploring_expertise__hybrid_master_intrigue",
+      "from": "exploring_expertise",
+      "to": "hybrid_master_intrigue"
+    },
+    {
+      "id": "edge_hybrid_master_intrigue__hybrid_shadow_network",
+      "from": "hybrid_master_intrigue",
+      "to": "hybrid_shadow_network"
+    },
+    {
+      "id": "edge_social_silver_tongue__hybrid_shadow_network",
+      "from": "social_silver_tongue",
+      "to": "hybrid_shadow_network"
+    },
+    {
+      "id": "edge_exploring_prof_light_finesse__hybrid_sneak_attack",
+      "from": "exploring_prof_light_finesse",
+      "to": "hybrid_sneak_attack"
+    },
+    {
+      "id": "edge_combat_prof_weapons_martial__hybrid_sneak_attack",
+      "from": "combat_prof_weapons_martial",
+      "to": "hybrid_sneak_attack"
+    },
+    {
+      "id": "edge_exploring_skill_acrobatics__hybrid_martial_arts",
+      "from": "exploring_skill_acrobatics",
+      "to": "hybrid_martial_arts"
+    },
+    {
+      "id": "edge_combat_skill_athletics__hybrid_martial_arts",
+      "from": "combat_skill_athletics",
+      "to": "hybrid_martial_arts"
+    },
+    {
+      "id": "edge_hybrid_sneak_attack__hybrid_assassinate",
+      "from": "hybrid_sneak_attack",
+      "to": "hybrid_assassinate"
+    },
+    {
+      "id": "edge_exploring_cunning_action__hybrid_assassinate",
+      "from": "exploring_cunning_action",
+      "to": "hybrid_assassinate"
+    },
+    {
+      "id": "edge_hybrid_martial_arts__hybrid_stunning_strike",
+      "from": "hybrid_martial_arts",
+      "to": "hybrid_stunning_strike"
+    },
+    {
+      "id": "edge_combat_extra_attack__hybrid_stunning_strike",
+      "from": "combat_extra_attack",
+      "to": "hybrid_stunning_strike"
+    },
+    {
+      "id": "edge_combat_fighting_style__hybrid_war_magic",
+      "from": "combat_fighting_style",
+      "to": "hybrid_war_magic"
+    },
+    {
+      "id": "edge_magic_spell_t1__hybrid_war_magic",
+      "from": "magic_spell_t1",
+      "to": "hybrid_war_magic"
+    },
+    {
+      "id": "edge_exploring_natural_explorer__hybrid_wild_shape",
+      "from": "exploring_natural_explorer",
+      "to": "hybrid_wild_shape"
+    },
+    {
+      "id": "edge_magic_spell_t1__hybrid_wild_shape",
+      "from": "magic_spell_t1",
+      "to": "hybrid_wild_shape"
+    }
+  ],
+  "presets": [
+    {
+      "id": "preset_paladin",
+      "name": "Lv 5 Oathbound Paladin",
+      "level": 5,
+      "description": "Combat + Devotion vanguard wielding Divine Smite, Heavy Armor, and Lay on Hands.",
+      "unlocked": [
+        "combat_root",
+        "combat_prof_weapons_martial",
+        "combat_prof_armor_med",
+        "combat_hd_d8",
+        "combat_fighting_style",
+        "combat_extra_attack",
+        "devotion_root",
+        "devotion_skill_religion",
+        "devotion_skill_medicine",
+        "devotion_channel_divinity",
+        "devotion_lay_on_hands",
+        "hybrid_divine_smite"
+      ]
+    },
+    {
+      "id": "preset_spellblade",
+      "name": "Lv 5 Eldritch Spellblade",
+      "level": 5,
+      "description": "Combat + Magic gish blending Fighting Style, Arcane Ward, and War Magic.",
+      "unlocked": [
+        "combat_root",
+        "combat_prof_weapons_martial",
+        "combat_prof_armor_med",
+        "combat_hd_d8",
+        "combat_fighting_style",
+        "combat_save_con",
+        "magic_root",
+        "magic_skill_arcana",
+        "magic_save_int",
+        "magic_spell_t1",
+        "magic_ritual_casting",
+        "magic_arcane_ward",
+        "hybrid_war_magic"
+      ]
+    },
+    {
+      "id": "preset_shadow_scout",
+      "name": "Lv 5 Shadow Assassin",
+      "level": 5,
+      "description": "Exploring + Combat skirmisher with Sneak Attack, Cunning Action, Expertise, and Assassinate.",
+      "unlocked": [
+        "exploring_root",
+        "exploring_skill_stealth",
+        "exploring_skill_perception",
+        "exploring_skill_investigation",
+        "exploring_save_dex",
+        "exploring_skill_acrobatics",
+        "exploring_prof_light_finesse",
+        "exploring_expertise",
+        "exploring_cunning_action",
+        "combat_root",
+        "combat_prof_weapons_martial",
+        "hybrid_sneak_attack",
+        "hybrid_assassinate"
+      ]
+    },
+    {
+      "id": "preset_arcane_diplomat",
+      "name": "Lv 5 Lore Bard",
+      "level": 5,
+      "description": "Social + Magic maestro combining Bardic Inspiration, Cutting Words, and Magical Secrets.",
+      "unlocked": [
+        "social_root",
+        "social_skill_performance",
+        "social_skill_persuasion",
+        "social_save_cha",
+        "social_bardic_inspiration",
+        "social_jack_of_trades",
+        "social_cutting_words",
+        "magic_root",
+        "magic_spell_t1",
+        "magic_spell_t2",
+        "hybrid_magical_secrets"
+      ]
+    }
+  ]
+}

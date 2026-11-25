@@ -1,0 +1,844 @@
+/* Fivefold 5e — Scoped Foundry VTT v14 (14.370) ApplicationV2 Stylesheet */
+
+.fivefold-5e-app,
+.theme-light .fivefold-5e-app,
+.fivefold-5e-app.theme-light {
+  --ff5e-bg-page: #f5f1e8;
+  --ff5e-bg-canvas: #ede7da;
+  --ff5e-bg-surface: #fbf9f4;
+  --ff5e-bg-elevated: #ffffff;
+  --ff5e-bg-subtle: #e9e2d3;
+  --ff5e-border: #d6ccba;
+  --ff5e-border-strong: #b8aa91;
+  --ff5e-fg: #1f1b16;
+  --ff5e-fg-secondary: #534a3f;
+  --ff5e-fg-muted: #786d5f;
+  --ff5e-accent: #8f4a24;
+  --ff5e-accent-hover: #733a1b;
+  --ff5e-accent-fg: #ffffff;
+  --ff5e-edge-default: rgba(82, 70, 56, 0.36);
+  --ff5e-edge-dim: rgba(82, 70, 56, 0.1);
+  --ff5e-ring-stroke: rgba(82, 70, 56, 0.16);
+  --ff5e-node-fill: #fdfbf6;
+  --ff5e-node-locked: #e6dfd1;
+  --ff5e-success: #1b8a5a;
+  --ff5e-warning: #c78212;
+  --ff5e-danger: #c93b2b;
+}
+
+.theme-dark .fivefold-5e-app,
+.fivefold-5e-app.theme-dark {
+  --ff5e-bg-page: #14171a;
+  --ff5e-bg-canvas: #101316;
+  --ff5e-bg-surface: #1a1e23;
+  --ff5e-bg-elevated: #22272e;
+  --ff5e-bg-subtle: #282e36;
+  --ff5e-border: #323943;
+  --ff5e-border-strong: #485260;
+  --ff5e-fg: #edeae3;
+  --ff5e-fg-secondary: #b7b1a6;
+  --ff5e-fg-muted: #868178;
+  --ff5e-accent: #d48c45;
+  --ff5e-accent-hover: #e29d57;
+  --ff5e-accent-fg: #141210;
+  --ff5e-edge-default: rgba(190, 182, 168, 0.32);
+  --ff5e-edge-dim: rgba(190, 182, 168, 0.09);
+  --ff5e-ring-stroke: rgba(190, 182, 168, 0.13);
+  --ff5e-node-fill: #1d2127;
+  --ff5e-node-locked: #16191e;
+}
+
+.fivefold-5e-app .window-content {
+  padding: 0;
+  overflow: hidden;
+  background: var(--ff5e-bg-page);
+  color: var(--ff5e-fg);
+}
+
+.fivefold-5e-app .ff5e-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  font-size: 13px;
+  color: var(--ff5e-fg);
+}
+
+/* Top Bar */
+.fivefold-5e-app .ff5e-topbar {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px;
+  background: var(--ff5e-bg-surface);
+  border-bottom: 1px solid var(--ff5e-border);
+}
+
+.fivefold-5e-app .ff5e-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fivefold-5e-app .ff5e-crest {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--ff5e-bg-subtle);
+  border: 1px solid var(--ff5e-border-strong);
+  display: grid;
+  place-items: center;
+}
+
+.fivefold-5e-app .ff5e-brand-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.fivefold-5e-app .ff5e-meta-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--ff5e-bg-subtle);
+  border: 1px solid var(--ff5e-border);
+  color: var(--ff5e-fg-muted);
+  white-space: nowrap;
+}
+
+.fivefold-5e-app .ff5e-modes {
+  display: inline-flex;
+  background: var(--ff5e-bg-subtle);
+  border: 1px solid var(--ff5e-border);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.fivefold-5e-app .ff5e-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--ff5e-fg-secondary);
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1.2;
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-mode-btn.active {
+  background: var(--ff5e-bg-elevated);
+  color: var(--ff5e-fg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.fivefold-5e-app .ff5e-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fivefold-5e-app .ff5e-search-wrap {
+  position: relative;
+  width: 200px;
+}
+
+.fivefold-5e-app .ff5e-search-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 24px 0 9px;
+  border-radius: 6px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-elevated);
+  color: var(--ff5e-fg);
+  font-size: 12px;
+}
+
+.fivefold-5e-app .ff5e-search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--ff5e-fg-muted);
+  cursor: pointer;
+  display: none;
+  padding: 0 4px;
+  width: auto;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-search-clear.visible {
+  display: block;
+}
+
+.fivefold-5e-app .ff5e-search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--ff5e-bg-elevated);
+  border: 1px solid var(--ff5e-border-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  z-index: 40;
+  display: none;
+}
+
+.fivefold-5e-app .ff5e-search-results.open {
+  display: block;
+}
+
+.fivefold-5e-app .ff5e-search-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--ff5e-fg);
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--ff5e-border);
+  text-align: left;
+  font-size: 12px;
+  margin: 0;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-search-item:hover {
+  background: var(--ff5e-bg-subtle);
+}
+
+/* Generic Scoped Buttons */
+.fivefold-5e-app .ff5e-btn {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-elevated);
+  color: var(--ff5e-fg);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  margin: 0;
+  width: auto;
+  line-height: 1;
+}
+
+.fivefold-5e-app .ff5e-btn:hover:not(:disabled) {
+  background: var(--ff5e-bg-subtle);
+  border-color: var(--ff5e-border-strong);
+}
+
+.fivefold-5e-app .ff5e-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.fivefold-5e-app .ff5e-btn-sm {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11.5px;
+}
+
+.fivefold-5e-app .ff5e-btn-primary,
+.fivefold-5e-app .ff5e-btn.active {
+  background: var(--ff5e-accent);
+  border-color: var(--ff5e-accent);
+  color: var(--ff5e-accent-fg);
+}
+
+.fivefold-5e-app .ff5e-btn-primary:hover:not(:disabled) {
+  background: var(--ff5e-accent-hover);
+  border-color: var(--ff5e-accent-hover);
+}
+
+.fivefold-5e-app .ff5e-btn-danger {
+  color: var(--ff5e-danger);
+  border-color: rgba(201, 59, 43, 0.45);
+}
+
+/* Workspace Split */
+.fivefold-5e-app .ff5e-workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.fivefold-5e-app .ff5e-canvas-pane {
+  flex: 1;
+  position: relative;
+  background: var(--ff5e-bg-canvas);
+  overflow: hidden;
+  user-select: none;
+}
+
+.fivefold-5e-app .ff5e-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.fivefold-5e-app .ff5e-svg.panning { cursor: grabbing; }
+.fivefold-5e-app .ff5e-svg.linking { cursor: crosshair; }
+
+/* Floating HUD */
+.fivefold-5e-app .ff5e-hud-top {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fivefold-5e-app .ff5e-hud-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fivefold-5e-app .ff5e-hud-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  background: var(--ff5e-bg-surface);
+  border: 1px solid var(--ff5e-border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  pointer-events: auto;
+}
+
+.fivefold-5e-app .ff5e-role-pill {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ff5e-fg-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-role-pill.active {
+  background: var(--ff5e-bg-elevated);
+  border-color: var(--ff5e-border-strong);
+  color: var(--ff5e-fg);
+}
+
+.fivefold-5e-app .ff5e-role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.fivefold-5e-app .ff5e-hud-select {
+  height: 26px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-elevated);
+  color: var(--ff5e-fg);
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 11.5px;
+}
+
+.fivefold-5e-app .ff5e-zoom-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--ff5e-fg-muted);
+  min-width: 38px;
+  text-align: center;
+}
+
+.fivefold-5e-app .ff5e-status-banner {
+  background: var(--ff5e-bg-surface);
+  border: 1px solid var(--ff5e-accent);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.fivefold-5e-app .ff5e-status-banner.visible {
+  display: flex;
+}
+
+/* SVG Elements */
+.fivefold-5e-app .ff5e-tier-ring {
+  fill: none;
+  stroke: var(--ff5e-ring-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 7;
+}
+
+.fivefold-5e-app .ff5e-tier-label {
+  fill: var(--ff5e-fg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+  text-anchor: middle;
+}
+
+.fivefold-5e-app .ff5e-sector-label {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-anchor: middle;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.fivefold-5e-app .ff5e-edge {
+  fill: none;
+  stroke: var(--ff5e-edge-default);
+  stroke-width: 2;
+}
+
+.fivefold-5e-app .ff5e-edge.dimmed { stroke: var(--ff5e-edge-dim); }
+.fivefold-5e-app .ff5e-edge.highlighted { stroke-width: 3.2; }
+.fivefold-5e-app .ff5e-edge.unlocked { stroke-width: 3.5; }
+.fivefold-5e-app .ff5e-edge.editable { cursor: pointer; }
+.fivefold-5e-app .ff5e-edge.editable:hover {
+  stroke: var(--ff5e-danger) !important;
+  stroke-width: 4.5 !important;
+}
+
+.fivefold-5e-app .ff5e-node { cursor: pointer; transition: opacity 0.15s; }
+.fivefold-5e-app .ff5e-node.dimmed { opacity: 0.18; }
+
+.fivefold-5e-app .ff5e-node-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: var(--ff5e-fg);
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--ff5e-bg-canvas);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+.fivefold-5e-app .ff5e-node-label.root {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fivefold-5e-app .ff5e-node-glyph {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.fivefold-5e-app .ff5e-cost-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+@keyframes ff5ePulse {
+  0%, 100% { stroke-opacity: 0.95; }
+  50% { stroke-opacity: 0.3; }
+}
+
+.fivefold-5e-app .ff5e-available-halo {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-dasharray: 5 4;
+  animation: ff5ePulse 2s ease-in-out infinite;
+}
+
+/* Right Drawer */
+.fivefold-5e-app .ff5e-drawer {
+  width: 375px;
+  flex-shrink: 0;
+  background: var(--ff5e-bg-surface);
+  border-left: 1px solid var(--ff5e-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.fivefold-5e-app .ff5e-subtabs {
+  display: flex;
+  border-bottom: 1px solid var(--ff5e-border);
+  padding: 0 12px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fivefold-5e-app .ff5e-subtab {
+  border: none;
+  background: transparent;
+  color: var(--ff5e-fg-muted);
+  padding: 9px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-subtab.active {
+  color: var(--ff5e-fg);
+  border-bottom-color: var(--ff5e-accent);
+}
+
+.fivefold-5e-app .ff5e-drawer-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.fivefold-5e-app .ff5e-card {
+  background: var(--ff5e-bg-elevated);
+  border: 1px solid var(--ff5e-border);
+  border-radius: 8px;
+  padding: 11px;
+}
+
+.fivefold-5e-app .ff5e-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ff5e-fg-muted);
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fivefold-5e-app .ff5e-node-title {
+  margin: 6px 0 0 0;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  border: none;
+}
+
+.fivefold-5e-app .ff5e-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.fivefold-5e-app .ff5e-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--ff5e-bg-subtle);
+  border: 1px solid var(--ff5e-border);
+  color: var(--ff5e-fg-secondary);
+}
+
+.fivefold-5e-app .ff5e-chip {
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  color: var(--ff5e-fg);
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.fivefold-5e-app .ff5e-chip:hover {
+  background: var(--ff5e-bg-subtle);
+}
+
+.fivefold-5e-app .ff5e-saves-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.fivefold-5e-app .ff5e-save-pill {
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  color: var(--ff5e-fg-muted);
+}
+
+.fivefold-5e-app .ff5e-save-pill.proficient {
+  background: var(--ff5e-success);
+  border-color: var(--ff5e-success);
+  color: #ffffff;
+}
+
+.fivefold-5e-app .ff5e-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fivefold-5e-app .ff5e-stat-tile {
+  background: var(--ff5e-bg-elevated);
+  border: 1px solid var(--ff5e-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.fivefold-5e-app .ff5e-sp-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ff5e-bg-subtle);
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.fivefold-5e-app .ff5e-sp-fill {
+  height: 100%;
+  background: var(--ff5e-accent);
+  transition: width 0.2s;
+}
+
+.fivefold-5e-app .ff5e-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fivefold-5e-app .ff5e-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fivefold-5e-app .ff5e-field.full {
+  grid-column: 1 / -1;
+}
+
+.fivefold-5e-app .ff5e-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ff5e-fg-secondary);
+}
+
+.fivefold-5e-app .ff5e-input,
+.fivefold-5e-app .ff5e-select,
+.fivefold-5e-app .ff5e-textarea {
+  width: 100%;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  color: var(--ff5e-fg);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.fivefold-5e-app .ff5e-textarea {
+  min-height: 62px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.fivefold-5e-app .ff5e-dropzone.drag-over {
+  border-color: var(--ff5e-accent);
+  background: rgba(212, 140, 69, 0.12);
+}
+
+.fivefold-5e-app .ff5e-callout {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-elevated);
+  font-size: 12px;
+}
+
+.fivefold-5e-app .ff5e-callout.unlocked {
+  border-color: var(--ff5e-success);
+}
+
+.fivefold-5e-app .ff5e-callout.locked {
+  border-color: var(--ff5e-warning);
+}
+
+.fivefold-5e-app .ff5e-check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  cursor: pointer;
+}
+
+/* Choice Options & Selected Option Chips inside Drawer */
+.fivefold-5e-app .ff5e-choice-item {
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  border-radius: 6px;
+  padding: 7px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fivefold-5e-app .ff5e-chosen-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--ff5e-border);
+  background: var(--ff5e-bg-surface);
+  font-size: 12px;
+}
+
+/* DialogV2 Choice Selection Prompt */
+.ff5e-choice-dialog .ff5e-choice-hint {
+  margin: 0 0 10px 0;
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+
+.ff5e-choice-dialog .ff5e-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 410px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ff5e-choice-dialog .ff5e-choice-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1px solid rgba(130, 120, 105, 0.4);
+  cursor: pointer;
+  transition: border-color 0.14s, background 0.14s;
+}
+
+.ff5e-choice-dialog .ff5e-choice-option:hover:not(.chosen) {
+  border-color: #c78212;
+  background: rgba(199, 130, 18, 0.08);
+}
+
+.ff5e-choice-dialog .ff5e-choice-option:has(input:checked) {
+  border-color: #c78212;
+  background: rgba(199, 130, 18, 0.14);
+}
+
+.ff5e-choice-dialog .ff5e-choice-option.chosen {
+  opacity: 0.58;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.ff5e-choice-dialog .ff5e-choice-option input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.ff5e-choice-dialog .ff5e-choice-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ff5e-choice-dialog .ff5e-choice-desc {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.ff5e-choice-dialog .ff5e-choice-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #1b8a5a;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
